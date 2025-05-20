@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { MessageCircle, Send, User } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 // Types for our messages
 interface Message {
@@ -20,6 +21,8 @@ interface Chat {
   name: string;
   lastMessage: string;
   unread: number;
+  jobTitle?: string;
+  salary?: string;
 }
 
 const ChatPage = () => {
@@ -28,6 +31,8 @@ const ChatPage = () => {
   const [newMessage, setNewMessage] = useState("");
   const [activeChat, setActiveChat] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const { toast } = useToast();
 
   // Mock data
   useEffect(() => {
@@ -38,18 +43,24 @@ const ChatPage = () => {
         name: "ABC Company",
         lastMessage: "Thanks for your application!",
         unread: 2,
+        jobTitle: "Senior Painter",
+        salary: "KSH 25,000 - KSH 35,000 per month"
       },
       {
         id: "2",
         name: "XYZ Corporation",
         lastMessage: "When can you start?",
         unread: 0,
+        jobTitle: "Software Engineer",
+        salary: "KSH 85,000 - KSH 110,000 per month"
       },
       {
         id: "3",
         name: "123 Enterprises",
         lastMessage: "We'd like to schedule an interview.",
         unread: 1,
+        jobTitle: "Administrative Assistant",
+        salary: "KSH 18,000 - KSH 22,000 per month"
       },
     ];
 
@@ -88,7 +99,7 @@ const ChatPage = () => {
       },
       {
         id: "m5",
-        content: "Great! Let's schedule for Tuesday at 2 PM.",
+        content: "Great! Let's schedule for Tuesday at 2 PM. The job offers KSH 85,000 - KSH 110,000 per month depending on experience.",
         sender: "client",
         timestamp: new Date(Date.now() - 10000000),
       },
@@ -100,6 +111,11 @@ const ChatPage = () => {
     setChats(chats.map(chat => 
       chat.id === activeChat ? { ...chat, unread: 0 } : chat
     ));
+    
+    // Focus the input field when a chat is selected
+    setTimeout(() => {
+      inputRef.current?.focus();
+    }, 100);
   }, [activeChat]);
 
   // Scroll to bottom when new messages come in
@@ -123,6 +139,16 @@ const ChatPage = () => {
     setMessages([...messages, newMsg]);
     setNewMessage("");
     
+    // Update the last message in the chat list
+    setChats(chats.map(chat => 
+      chat.id === activeChat 
+        ? { ...chat, lastMessage: newMessage } 
+        : chat
+    ));
+    
+    // Focus back on the input
+    inputRef.current?.focus();
+    
     // Simulate response (in a real app, this would come from a WebSocket or similar)
     setTimeout(() => {
       const response: Message = {
@@ -133,6 +159,11 @@ const ChatPage = () => {
       };
       
       setMessages(prev => [...prev, response]);
+      
+      toast({
+        title: "New message",
+        description: "You've received a new message",
+      });
     }, 1000);
   };
 
@@ -173,7 +204,11 @@ const ChatPage = () => {
                         </span>
                       )}
                     </div>
-                    <p className="text-sm text-gray-500 truncate">{chat.lastMessage}</p>
+                    <p className="text-xs font-medium text-fem-terracotta">{chat.jobTitle}</p>
+                    {chat.salary && (
+                      <p className="text-xs text-gray-600">{chat.salary}</p>
+                    )}
+                    <p className="text-sm text-gray-500 truncate mt-1">{chat.lastMessage}</p>
                   </div>
                 </div>
               ))}
@@ -188,6 +223,11 @@ const ChatPage = () => {
                   <CardTitle>
                     {chats.find((chat) => chat.id === activeChat)?.name || "Chat"}
                   </CardTitle>
+                  {chats.find((chat) => chat.id === activeChat)?.jobTitle && (
+                    <p className="text-sm text-gray-600">
+                      {chats.find((chat) => chat.id === activeChat)?.jobTitle} - {chats.find((chat) => chat.id === activeChat)?.salary}
+                    </p>
+                  )}
                 </CardHeader>
                 <CardContent className="flex-grow p-0 overflow-hidden flex flex-col">
                   <div className="flex-grow overflow-y-auto p-4 space-y-4">
@@ -222,8 +262,14 @@ const ChatPage = () => {
                       onChange={(e) => setNewMessage(e.target.value)}
                       placeholder="Type your message..."
                       className="flex-grow"
+                      ref={inputRef}
                     />
-                    <Button type="submit" variant="default" className="bg-fem-terracotta hover:bg-fem-terracotta/90">
+                    <Button 
+                      type="submit" 
+                      variant="default" 
+                      className="bg-fem-terracotta hover:bg-fem-terracotta/90"
+                      disabled={!newMessage.trim() || !activeChat}
+                    >
                       <Send className="h-4 w-4" />
                       <span className="sr-only">Send</span>
                     </Button>
