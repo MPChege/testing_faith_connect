@@ -12,6 +12,7 @@ import { Footer } from "@/components/layout/Footer";
 const SignInPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [partnershipNumber, setPartnershipNumber] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
@@ -26,10 +27,15 @@ const SignInPage = () => {
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1000));
       
-      // For demo purposes, accept any non-empty email/password
-      if (email && password) {
+      // For demo purposes, accept any non-empty email/password with partnership number
+      if (email && password && partnershipNumber) {
+        // Check if this is a job poster (for demo, any email containing "employer" or "poster")
+        const isJobPoster = email.includes("employer") || email.includes("poster");
+        
         localStorage.setItem("isLoggedIn", "true");
         localStorage.setItem("userEmail", email);
+        localStorage.setItem("userType", isJobPoster ? "job-poster" : "job-seeker");
+        localStorage.setItem("partnershipNumber", partnershipNumber);
         
         toast({
           title: "Sign in successful",
@@ -40,7 +46,7 @@ const SignInPage = () => {
       } else {
         toast({
           title: "Sign in failed",
-          description: "Please check your email and password",
+          description: "Please check your email, password and partnership number",
           variant: "destructive",
         });
       }
@@ -95,6 +101,20 @@ const SignInPage = () => {
                   required
                 />
               </div>
+              <div className="space-y-2">
+                <label htmlFor="partnershipNumber" className="text-sm font-medium">Partnership Number</label>
+                <Input
+                  id="partnershipNumber"
+                  type="text"
+                  placeholder="Enter your church partnership number"
+                  value={partnershipNumber}
+                  onChange={(e) => setPartnershipNumber(e.target.value)}
+                  required
+                />
+                <p className="text-xs text-gray-500">
+                  Your partnership number is required for verification
+                </p>
+              </div>
               <div className="flex items-center space-x-2">
                 <Checkbox 
                   id="remember" 
@@ -118,7 +138,13 @@ const SignInPage = () => {
             <div className="text-sm text-center">
               Don't have an account?{" "}
               <Link to="/register" className="text-fem-terracotta hover:underline font-medium">
-                Sign up
+                Sign up as Job Seeker
+              </Link>
+            </div>
+            <div className="text-sm text-center">
+              Want to post jobs?{" "}
+              <Link to="/register-job-poster" className="text-fem-terracotta hover:underline font-medium">
+                Register as Job Poster
               </Link>
             </div>
           </CardFooter>
