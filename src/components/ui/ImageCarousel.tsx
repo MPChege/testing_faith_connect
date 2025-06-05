@@ -1,6 +1,5 @@
 
 import React, { useState, useEffect } from 'react';
-import { Play, Pause } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface ImageData {
@@ -31,10 +30,6 @@ const ImageCarousel: React.FC<ImageCarouselProps> = ({ images, className }) => {
     return () => clearInterval(interval);
   }, [displayImages.length, isAutoPlaying]);
 
-  const toggleAutoPlay = () => {
-    setIsAutoPlaying(!isAutoPlaying);
-  };
-
   return (
     <div className={cn("relative w-full max-w-5xl mx-auto", className)}>
       {/* Main Carousel Container */}
@@ -54,31 +49,6 @@ const ImageCarousel: React.FC<ImageCarouselProps> = ({ images, className }) => {
             className="w-full h-full object-cover transition-all duration-1000 ease-out"
             draggable={false}
           />
-
-          {/* Auto-play Control */}
-          <button
-            onClick={toggleAutoPlay}
-            className="absolute top-8 right-8 z-20 bg-black/20 hover:bg-black/40 backdrop-blur-xl rounded-full p-3 transition-all duration-300 hover:scale-110 border border-white/20 group/btn"
-            aria-label={isAutoPlaying ? "Pause slideshow" : "Play slideshow"}
-          >
-            {isAutoPlaying ? (
-              <Pause className="w-5 h-5 text-white group-hover/btn:text-fem-gold transition-colors" />
-            ) : (
-              <Play className="w-5 h-5 text-white group-hover/btn:text-fem-gold transition-colors" />
-            )}
-          </button>
-
-          {/* Bottom Overlay with Quote/Message */}
-          <div className="absolute bottom-0 left-0 right-0 z-20 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-8">
-            <div className="max-w-4xl">
-              <p className="text-white/90 text-lg font-mont font-medium italic mb-2">
-                "A house of prayer for all nations - where faith meets purpose"
-              </p>
-              <p className="text-gray-300 text-sm font-mont">
-                Pastor {currentIndex + 1} • FEM Family Church Leadership
-              </p>
-            </div>
-          </div>
         </div>
       </div>
 
