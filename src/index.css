@@ -234,6 +234,23 @@
   .depth-layer-2 { transform: translateZ(20px); }
   .depth-layer-3 { transform: translateZ(30px); }
   .depth-layer-4 { transform: translateZ(40px); }
+
+  /* Enhanced fade in animation */
+  @keyframes fade-in {
+    0% {
+      opacity: 0;
+      transform: translateY(30px) scale(0.95);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+
+  .animate-fade-in {
+    animation: fade-in 0.8s ease-out forwards;
+    opacity: 0;
+  }
 }
 
 @keyframes float {
