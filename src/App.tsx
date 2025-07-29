@@ -6,17 +6,17 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import ErrorBoundary from "@/components/ui/ErrorBoundary";
 import Index from "./pages/Index";
 import DirectoryPage from "./pages/DirectoryPage";
-import JobDetailPage from "./pages/JobDetailPage";
-import JobApplicationPage from "./pages/JobApplicationPage";
-import PostJobPage from "./pages/PostJobPage";
-import JobPostedSuccessPage from "./pages/JobPostedSuccessPage";
-import CreateProfilePage from "./pages/CreateProfilePage";
 import AboutPage from "./pages/AboutPage";
 import NotFound from "./pages/NotFound";
 import SignInPage from "./pages/SignInPage";
 import ChatPage from "./pages/ChatPage";
 import ProfilePage from "./pages/ProfilePage";
-import RegisterJobPosterPage from "./pages/RegisterJobPosterPage";
+import AdminDashboardPage from "./pages/AdminDashboardPage";
+import BusinessDetailPage from "./pages/BusinessDetailPage";
+import BusinessRegistrationPage from "./pages/BusinessRegistrationPage";
+import BusinessRegistrationSuccessPage from "./pages/BusinessRegistrationSuccessPage";
+import UserRegistrationPage from "./pages/UserRegistrationPage";
+import WelcomePage from "./pages/WelcomePage";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -34,16 +34,16 @@ const App = () => (
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/directory" element={<DirectoryPage />} />
-          <Route path="/jobs/:id" element={<JobDetailPage />} />
-          <Route path="/jobs/:id/apply" element={<JobApplicationPage />} />
-          <Route path="/post-job" element={<PostJobPage />} />
-          <Route path="/job-posted-success" element={<JobPostedSuccessPage />} />
           <Route path="/profile" element={<ProfilePage />} />
-          <Route path="/register" element={<CreateProfilePage />} />
-          <Route path="/register-job-poster" element={<RegisterJobPosterPage />} />
           <Route path="/about" element={<AboutPage />} />
           <Route path="/login" element={<SignInPage />} />
+          <Route path="/register" element={<UserRegistrationPage />} />
+          <Route path="/welcome" element={<WelcomePage />} />
           <Route path="/chat" element={<ChatPage />} />
+          <Route path="/admin" element={<AdminDashboardPage />} />
+          <Route path="/business/:id" element={<BusinessDetailPage />} />
+          <Route path="/register-business" element={<BusinessRegistrationPage />} />
+          <Route path="/business-registration-success" element={<BusinessRegistrationSuccessPage />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

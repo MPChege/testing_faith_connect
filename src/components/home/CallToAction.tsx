@@ -84,7 +84,7 @@ export const CallToAction = () => {
                      </p>
                    </div>
                    
-                   <Link to="/register" className="block">
+                   <Link to="/register-business" className="block">
                      <Button 
                        variant="outline" 
                        className="w-full text-lg py-6 rounded-2xl border-2 border-fem-terracotta text-fem-terracotta hover:bg-fem-terracotta hover:text-white group-hover:scale-105 transition-all duration-300"

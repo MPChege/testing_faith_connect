@@ -50,9 +50,14 @@ export const Navbar = () => {
           <Link to="/directory" className="text-fem-navy hover:text-fem-terracotta transition-colors">
             Business Directory
           </Link>
-          {isLoggedIn && (
-            <Link to="/profile" className="text-fem-navy hover:text-fem-terracotta transition-colors">
-              My Business
+          {isLoggedIn && userType === "business" && (
+            <Link to="/register-business" className="text-fem-navy hover:text-fem-terracotta transition-colors">
+              List Business
+            </Link>
+          )}
+          {isLoggedIn && userType === "admin" && (
+            <Link to="/admin" className="text-fem-navy hover:text-fem-terracotta transition-colors">
+              Admin
             </Link>
           )}
           <Link to="/about" className="text-fem-navy hover:text-fem-terracotta transition-colors">

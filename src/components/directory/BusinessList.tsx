@@ -111,11 +111,17 @@ export const BusinessList = ({ filters }: BusinessListProps) => {
 
   // Filter and sort businesses based on filters
   const filteredBusinesses = businesses.filter((business) => {
-    if (filters.searchTerm && !business.name.toLowerCase().includes(filters.searchTerm.toLowerCase()) &&
+    // If no filters are applied, show all businesses
+    if (!filters || Object.keys(filters).length === 0) {
+      return true;
+    }
+    
+    if (filters.searchTerm && filters.searchTerm.trim() !== "" && 
+        !business.name.toLowerCase().includes(filters.searchTerm.toLowerCase()) &&
         !business.description.toLowerCase().includes(filters.searchTerm.toLowerCase())) {
       return false;
     }
-    if (filters.category && business.category !== filters.category) {
+    if (filters.category && filters.category !== "" && business.category !== filters.category) {
       return false;
     }
     if (filters.verifiedOnly && !business.verified) {
@@ -123,6 +129,8 @@ export const BusinessList = ({ filters }: BusinessListProps) => {
     }
     return true;
   }).sort((a, b) => {
+    if (!filters || !filters.sortBy) return 0;
+    
     switch (filters.sortBy) {
       case "newest":
         return new Date(b.dateAdded).getTime() - new Date(a.dateAdded).getTime();

@@ -112,7 +112,7 @@ export const Hero = () => {
                    </button>
                  </Link>
                  
-                 <Link to="/register" className="group">
+                 <Link to="/register-business" className="group">
                    <button className="btn-outline-modern group-hover:scale-110 transition-transform duration-300 text-lg px-8 py-4">
                      <div className="flex items-center gap-3">
                        <Plus className="w-6 h-6" />

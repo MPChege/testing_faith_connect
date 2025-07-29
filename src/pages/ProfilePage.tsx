@@ -7,6 +7,19 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import { 
+  Plus, 
+  Building2, 
+  Star, 
+  Phone, 
+  Mail, 
+  MapPin, 
+  Camera, 
+  Calendar, 
+  Users, 
+  CheckCircle 
+} from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 
 const ProfilePage = () => {
@@ -27,7 +40,7 @@ const ProfilePage = () => {
 
     // Get user data from localStorage
     const email = localStorage.getItem("userEmail") || "";
-    const type = localStorage.getItem("userType") || "";
+    const type = localStorage.getItem("userType") || "user";
     const partnership = localStorage.getItem("partnershipNumber") || "";
     
     setIsLoggedIn(loggedInStatus);
@@ -64,7 +77,7 @@ const ProfilePage = () => {
           <div className="mb-8">
             <h1 className="text-3xl font-bold text-fem-navy mb-2">My Profile</h1>
             <p className="text-gray-600">
-              Manage your account information and view your activity
+              Manage your account information and business listings
             </p>
           </div>
           
@@ -94,16 +107,6 @@ const ProfilePage = () => {
                   <Button variant="outline" className="w-full justify-start">
                     Security
                   </Button>
-                  {userType === "job-seeker" && (
-                    <Button variant="outline" className="w-full justify-start">
-                      My Applications
-                    </Button>
-                  )}
-                  {userType === "job-poster" && (
-                    <Button variant="outline" className="w-full justify-start">
-                      My Job Postings
-                    </Button>
-                  )}
                   <Button variant="outline" className="w-full justify-start">
                     Messages
                   </Button>
@@ -116,12 +119,9 @@ const ProfilePage = () => {
                 <TabsList className="mb-6">
                   <TabsTrigger value="overview">Overview</TabsTrigger>
                   <TabsTrigger value="edit-profile">Edit Profile</TabsTrigger>
-                  {userType === "job-seeker" && (
-                    <TabsTrigger value="resume">Resume</TabsTrigger>
-                  )}
-                  {userType === "job-poster" && (
-                    <TabsTrigger value="company">Company Info</TabsTrigger>
-                  )}
+                  <TabsTrigger value="my-businesses">My Businesses</TabsTrigger>
+                  <TabsTrigger value="favorites">Favorites</TabsTrigger>
+                  <TabsTrigger value="photography">Photography Services</TabsTrigger>
                 </TabsList>
                 
                 <TabsContent value="overview">
@@ -148,23 +148,12 @@ const ProfilePage = () => {
                           </div>
                         </div>
                         
-                        {userType === "job-seeker" && (
-                          <div className="md:col-span-2">
-                            <h3 className="font-semibold text-fem-navy">Recent Activity</h3>
-                            <div className="mt-2">
-                              <p className="text-gray-500">You haven't applied to any jobs yet.</p>
-                            </div>
+                        <div className="md:col-span-2">
+                          <h3 className="font-semibold text-fem-navy">Business Activity</h3>
+                          <div className="mt-2">
+                            <p className="text-gray-500">Manage your business listings and connect with the community.</p>
                           </div>
-                        )}
-                        
-                        {userType === "job-poster" && (
-                          <div className="md:col-span-2">
-                            <h3 className="font-semibold text-fem-navy">Job Postings</h3>
-                            <div className="mt-2">
-                              <p className="text-gray-500">You haven't posted any jobs yet.</p>
-                            </div>
-                          </div>
-                        )}
+                        </div>
                       </div>
                     </CardContent>
                   </Card>
@@ -225,83 +214,174 @@ const ProfilePage = () => {
                     </CardContent>
                   </Card>
                 </TabsContent>
-                
-                {userType === "job-seeker" && (
-                  <TabsContent value="resume">
-                    <Card>
-                      <CardHeader>
-                        <CardTitle>Resume & Skills</CardTitle>
-                      </CardHeader>
-                      <CardContent>
-                        <p className="text-gray-600 mb-6">Manage your resume and professional skills</p>
-                        <div className="space-y-6">
-                          <div className="space-y-2">
-                            <h3 className="font-semibold text-fem-navy">Upload Resume</h3>
-                            <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
-                              <p className="text-gray-500 mb-4">Drag and drop your resume here or click to browse</p>
-                              <Button variant="outline">Browse Files</Button>
-                            </div>
-                          </div>
-                          
-                          <div className="space-y-2">
-                            <h3 className="font-semibold text-fem-navy">Skills</h3>
-                            <textarea
-                              className="w-full border border-gray-300 rounded-md p-2 min-h-24"
-                              placeholder="Add your skills (e.g., Communication, Microsoft Office, Customer Service)"
-                            />
-                          </div>
-                          
+
+                {/* My Businesses Tab */}
+                <TabsContent value="my-businesses">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>My Business Listings</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-6">
+                        <div className="flex justify-between items-center">
+                          <p className="text-gray-600">Manage your business listings and information</p>
                           <Button className="bg-fem-terracotta hover:bg-fem-terracotta/90">
-                            Save Changes
+                            <Plus className="w-4 h-4 mr-2" />
+                            Add New Business
                           </Button>
                         </div>
-                      </CardContent>
-                    </Card>
-                  </TabsContent>
-                )}
-                
-                {userType === "job-poster" && (
-                  <TabsContent value="company">
-                    <Card>
-                      <CardHeader>
-                        <CardTitle>Company Information</CardTitle>
-                      </CardHeader>
-                      <CardContent>
-                        <p className="text-gray-600 mb-6">Update your company details</p>
-                        <div className="space-y-6">
-                          <div className="space-y-2">
-                            <label className="text-sm font-medium">Company Name</label>
-                            <input
-                              type="text"
-                              className="w-full border border-gray-300 rounded-md p-2"
-                              defaultValue={localStorage.getItem("companyName") || ""}
-                            />
-                          </div>
-                          
-                          <div className="space-y-2">
-                            <label className="text-sm font-medium">Company Description</label>
-                            <textarea
-                              className="w-full border border-gray-300 rounded-md p-2 min-h-24"
-                              placeholder="Tell us about your company, mission, and values..."
-                            />
-                          </div>
-                          
-                          <div className="space-y-2">
-                            <label className="text-sm font-medium">Company Logo</label>
-                            <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
-                              <p className="text-gray-500 mb-4">Drag and drop your logo here or click to browse</p>
-                              <Button variant="outline">Browse Files</Button>
+                        
+                        {/* Mock business listings */}
+                        <div className="space-y-4">
+                          <div className="p-4 border rounded-lg">
+                            <div className="flex items-center justify-between mb-3">
+                              <div>
+                                <h3 className="font-semibold text-fem-navy">Grace Family Restaurant</h3>
+                                <p className="text-sm text-gray-600">Restaurant • Verified</p>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <Badge variant="default" className="bg-green-600">Verified</Badge>
+                                <Button variant="outline" size="sm">Edit</Button>
+                              </div>
+                            </div>
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                              <div className="flex items-center gap-2">
+                                <Phone className="w-4 h-4 text-gray-500" />
+                                <span>(555) 123-4567</span>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <Mail className="w-4 h-4 text-gray-500" />
+                                <span>grace@restaurant.com</span>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <MapPin className="w-4 h-4 text-gray-500" />
+                                <span>123 Faith Ave, Atlanta, GA</span>
+                              </div>
                             </div>
                           </div>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+
+                {/* Favorites Tab */}
+                <TabsContent value="favorites">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>My Favorite Businesses</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-4">
+                        <p className="text-gray-600 mb-4">Businesses you've saved for quick access</p>
+                        
+                        {/* Mock favorite businesses */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div className="p-4 border rounded-lg">
+                            <div className="flex items-center gap-3 mb-3">
+                              <div className="w-12 h-12 bg-fem-gold/10 rounded-lg flex items-center justify-center">
+                                <Building2 className="w-6 h-6 text-fem-terracotta" />
+                              </div>
+                              <div>
+                                <h3 className="font-semibold text-fem-navy">Covenant Auto Repair</h3>
+                                <p className="text-sm text-gray-600">Automotive</p>
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-1 mb-2">
+                              <Star className="w-4 h-4 text-yellow-400 fill-current" />
+                              <span className="text-sm">4.9 (38 reviews)</span>
+                            </div>
+                            <Button variant="outline" size="sm" className="w-full">
+                              View Details
+                            </Button>
+                          </div>
                           
-                          <Button className="bg-fem-terracotta hover:bg-fem-terracotta/90">
-                            Save Changes
+                          <div className="p-4 border rounded-lg">
+                            <div className="flex items-center gap-3 mb-3">
+                              <div className="w-12 h-12 bg-fem-gold/10 rounded-lg flex items-center justify-center">
+                                <Building2 className="w-6 h-6 text-fem-terracotta" />
+                              </div>
+                              <div>
+                                <h3 className="font-semibold text-fem-navy">Faith Tech Solutions</h3>
+                                <p className="text-sm text-gray-600">Technology</p>
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-1 mb-2">
+                              <Star className="w-4 h-4 text-yellow-400 fill-current" />
+                              <span className="text-sm">4.7 (29 reviews)</span>
+                            </div>
+                            <Button variant="outline" size="sm" className="w-full">
+                              View Details
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+
+                {/* Photography Services Tab */}
+                <TabsContent value="photography">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Professional Photography Services</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-6">
+                        <div className="bg-gradient-to-r from-fem-gold/10 to-fem-terracotta/10 p-6 rounded-lg">
+                          <div className="flex items-center gap-3 mb-4">
+                            <Camera className="w-8 h-8 text-fem-terracotta" />
+                            <h3 className="text-lg font-semibold text-fem-navy">Enhance Your Business Listing</h3>
+                          </div>
+                          <p className="text-gray-700 mb-4">
+                            Get professional photos for your business to attract more customers and build trust with our community.
+                          </p>
+                          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                            <div className="text-center">
+                              <div className="w-12 h-12 bg-fem-gold/20 rounded-full flex items-center justify-center mx-auto mb-2">
+                                <CheckCircle className="w-6 h-6 text-fem-gold" />
+                              </div>
+                              <h4 className="font-medium text-fem-navy">Professional Quality</h4>
+                              <p className="text-sm text-gray-600">High-resolution photos</p>
+                            </div>
+                            <div className="text-center">
+                              <div className="w-12 h-12 bg-fem-gold/20 rounded-full flex items-center justify-center mx-auto mb-2">
+                                <Calendar className="w-6 h-6 text-fem-gold" />
+                              </div>
+                              <h4 className="font-medium text-fem-navy">Flexible Scheduling</h4>
+                              <p className="text-sm text-gray-600">Convenient appointment times</p>
+                            </div>
+                            <div className="text-center">
+                              <div className="w-12 h-12 bg-fem-gold/20 rounded-full flex items-center justify-center mx-auto mb-2">
+                                <Users className="w-6 h-6 text-fem-gold" />
+                              </div>
+                              <h4 className="font-medium text-fem-navy">Community Focused</h4>
+                              <p className="text-sm text-gray-600">Faith-based photographers</p>
+                            </div>
+                          </div>
+                          <Button className="w-full bg-fem-gold hover:bg-fem-gold/90 text-white">
+                            <Camera className="w-4 h-4 mr-2" />
+                            Request Photography Service
                           </Button>
                         </div>
-                      </CardContent>
-                    </Card>
-                  </TabsContent>
-                )}
+                        
+                        {/* Mock photo requests */}
+                        <div>
+                          <h3 className="font-semibold text-fem-navy mb-4">My Photo Requests</h3>
+                          <div className="space-y-3">
+                            <div className="p-4 border rounded-lg">
+                              <div className="flex items-center justify-between mb-2">
+                                <h4 className="font-medium">Grace Family Restaurant</h4>
+                                <Badge variant="secondary">Pending</Badge>
+                              </div>
+                              <p className="text-sm text-gray-600">Requested on Jan 25, 2024</p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </TabsContent>
               </Tabs>
             </div>
           </div>

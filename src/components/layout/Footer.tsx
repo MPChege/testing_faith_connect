@@ -3,29 +3,29 @@ import { Link } from "react-router-dom";
 
 export const Footer = () => {
   return (
-    <footer className="bg-fem-navy text-white py-12">
+    <footer className="bg-fem-navy text-white py-4">
       <div className="container mx-auto px-4">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-          <div className="space-y-4">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div className="space-y-2">
             <Link to="/" className="flex items-center gap-2">
               <img 
                 src="/lovable-uploads/f1a3f2a4-bbe7-46e5-be66-1ad39e35defa.png" 
                 alt="FEM Family Church Logo" 
-                className="h-12 w-auto" 
+                className="h-8 w-auto" 
               />
               <div className="flex flex-col">
                 <span className="font-heading font-semibold">FEM Family Church</span>
                 <span className="text-xs text-gray-300">Careers Connect</span>
               </div>
             </Link>
-            <p className="text-sm text-gray-300">
+            <p className="text-xs text-gray-300">
               Connecting our church community with meaningful employment opportunities.
             </p>
           </div>
           
           <div>
-            <h3 className="font-heading font-semibold mb-4 text-fem-gold">For Job Seekers</h3>
-            <ul className="space-y-2 text-sm text-gray-300">
+            <h3 className="font-heading font-semibold mb-2 text-fem-gold text-sm">For Community Members</h3>
+            <ul className="space-y-1 text-xs text-gray-300">
               <li><Link to="/jobs" className="hover:text-fem-gold transition-colors">Browse Jobs</Link></li>
               <li><Link to="/profile" className="hover:text-fem-gold transition-colors">Create Profile</Link></li>
               <li><Link to="/saved-jobs" className="hover:text-fem-gold transition-colors">Saved Jobs</Link></li>
@@ -34,8 +34,8 @@ export const Footer = () => {
           </div>
           
           <div>
-            <h3 className="font-heading font-semibold mb-4 text-fem-gold">For Employers</h3>
-            <ul className="space-y-2 text-sm text-gray-300">
+            <h3 className="font-heading font-semibold mb-2 text-fem-gold text-sm">For Employers</h3>
+            <ul className="space-y-1 text-xs text-gray-300">
               <li><Link to="/post-job" className="hover:text-fem-gold transition-colors">Post a Job</Link></li>
               <li><Link to="/employer-dashboard" className="hover:text-fem-gold transition-colors">Employer Dashboard</Link></li>
               <li><Link to="/applicants" className="hover:text-fem-gold transition-colors">Manage Applicants</Link></li>
@@ -44,8 +44,8 @@ export const Footer = () => {
           </div>
           
           <div>
-            <h3 className="font-heading font-semibold mb-4 text-fem-gold">Contact</h3>
-            <ul className="space-y-2 text-sm text-gray-300">
+            <h3 className="font-heading font-semibold mb-2 text-fem-gold text-sm">Contact</h3>
+            <ul className="space-y-1 text-xs text-gray-300">
               <li><Link to="/about" className="hover:text-fem-gold transition-colors">About Us</Link></li>
               <li><Link to="/contact" className="hover:text-fem-gold transition-colors">Contact Us</Link></li>
               <li><Link to="/faq" className="hover:text-fem-gold transition-colors">FAQ</Link></li>
@@ -54,11 +54,11 @@ export const Footer = () => {
           </div>
         </div>
         
-        <div className="border-t border-gray-700 mt-8 pt-6 flex flex-col md:flex-row justify-between items-center">
-          <p className="text-sm text-gray-300">
+        <div className="border-t border-gray-700 mt-4 pt-2 flex flex-col md:flex-row justify-between items-center">
+          <p className="text-xs text-gray-300">
             © {new Date().getFullYear()} FEM Family Church. All rights reserved.
           </p>
-          <div className="flex gap-4 mt-4 md:mt-0">
+          <div className="flex gap-2 mt-2 md:mt-0">
             <Link to="#" className="text-gray-300 hover:text-white">
               <span className="sr-only">Facebook</span>
               <svg className="h-6 w-6" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">

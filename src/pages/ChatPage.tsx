@@ -175,22 +175,19 @@ const ChatPage = () => {
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
       <Navbar />
-      <div className="container mx-auto py-6 flex-grow">
+      <div className="container mx-auto py-6 flex-grow flex flex-col">
         <h1 className="text-2xl font-bold mb-6 text-fem-navy">Messages</h1>
-        
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 h-[calc(100vh-300px)]">
+        <div className="flex flex-1 gap-4 min-h-0">
           {/* Chat list */}
-          <Card className="md:col-span-1 overflow-hidden">
+          <Card className="w-full md:w-1/4 flex-shrink-0 flex flex-col overflow-hidden">
             <CardHeader className="p-4">
               <CardTitle className="text-lg">Conversations</CardTitle>
             </CardHeader>
-            <div className="overflow-y-auto h-[calc(100%-70px)]">
+            <div className="overflow-y-auto flex-1">
               {chats.map((chat) => (
                 <div
                   key={chat.id}
-                  className={`p-4 border-b cursor-pointer hover:bg-gray-100 flex items-start ${
-                    activeChat === chat.id ? "bg-gray-100" : ""
-                  }`}
+                  className={`p-4 border-b cursor-pointer hover:bg-gray-100 flex items-start ${activeChat === chat.id ? "bg-gray-100" : ""}`}
                   onClick={() => setActiveChat(chat.id)}
                 >
                   <div className="bg-fem-navy text-white rounded-full w-10 h-10 flex items-center justify-center mr-3">
@@ -215,9 +212,8 @@ const ChatPage = () => {
               ))}
             </div>
           </Card>
-
           {/* Chat window */}
-          <Card className="md:col-span-3 flex flex-col">
+          <Card className="w-full md:w-3/4 flex flex-col h-full">
             {activeChat ? (
               <>
                 <CardHeader className="p-4 border-b">
@@ -230,63 +226,57 @@ const ChatPage = () => {
                     </p>
                   )}
                 </CardHeader>
-                <CardContent className="flex-grow p-0 overflow-hidden flex flex-col">
-                  <div className="flex-grow overflow-y-auto p-4 space-y-4">
-                    {messages.map((message) => (
-                      <div
-                        key={message.id}
-                        className={`flex ${
-                          message.sender === "user" ? "justify-end" : "justify-start"
-                        }`}
-                      >
+                <div className="flex flex-col flex-1 min-h-0">
+                  <CardContent className="flex-1 p-0 overflow-hidden flex flex-col min-h-0">
+                    <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50">
+                      {messages.map((message) => (
                         <div
-                          className={`max-w-[70%] rounded-lg p-3 ${
-                            message.sender === "user"
-                              ? "bg-fem-terracotta text-white"
-                              : "bg-gray-100"
-                          }`}
+                          key={message.id}
+                          className={`flex ${message.sender === "user" ? "justify-end" : "justify-start"}`}
                         >
-                          <p>{message.content}</p>
-                          <p className={`text-xs mt-1 text-right ${
-                            message.sender === "user" ? "text-white/70" : "text-gray-500"
-                          }`}>
-                            {formatTime(message.timestamp)}
-                          </p>
+                          <div
+                            className={`max-w-[70%] rounded-lg p-3 ${message.sender === "user" ? "bg-fem-terracotta text-white" : "bg-white border"}`}
+                          >
+                            <p>{message.content}</p>
+                            <p className={`text-xs mt-1 text-right ${message.sender === "user" ? "text-white/70" : "text-gray-500"}`}>
+                              {formatTime(message.timestamp)}
+                            </p>
+                          </div>
                         </div>
-                      </div>
-                    ))}
-                    <div ref={messagesEndRef} />
-                  </div>
-                  <form onSubmit={handleSendMessage} className="p-4 border-t flex gap-2">
-                    <Textarea
-                      value={newMessage}
-                      onChange={(e) => setNewMessage(e.target.value)}
-                      placeholder="Type your message..."
-                      className="flex-grow resize-none min-h-[50px] max-h-[150px]"
-                      ref={textareaRef}
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter' && !e.shiftKey) {
-                          e.preventDefault();
-                          if (newMessage.trim()) {
-                            handleSendMessage(e);
+                      ))}
+                      <div ref={messagesEndRef} />
+                    </div>
+                    <form onSubmit={handleSendMessage} className="p-3 border-t flex gap-2 bg-white shadow rounded-b-lg">
+                      <Textarea
+                        value={newMessage}
+                        onChange={(e) => setNewMessage(e.target.value)}
+                        placeholder="Type your message..."
+                        className="flex-grow resize-none min-h-[44px] max-h-[120px] rounded-lg border focus:ring-2 focus:ring-fem-terracotta"
+                        ref={textareaRef}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' && !e.shiftKey) {
+                            e.preventDefault();
+                            if (newMessage.trim()) {
+                              handleSendMessage(e);
+                            }
                           }
-                        }
-                      }}
-                    />
-                    <Button 
-                      type="submit" 
-                      variant="default" 
-                      className="bg-fem-terracotta hover:bg-fem-terracotta/90 self-end h-[50px]"
-                      disabled={!newMessage.trim() || !activeChat}
-                    >
-                      <Send className="h-4 w-4" />
-                      <span className="sr-only">Send</span>
-                    </Button>
-                  </form>
-                </CardContent>
+                        }}
+                      />
+                      <Button 
+                        type="submit" 
+                        variant="default" 
+                        className="bg-fem-terracotta hover:bg-fem-terracotta/90 self-end h-[44px] rounded-lg px-4"
+                        disabled={!newMessage.trim() || !activeChat}
+                      >
+                        <Send className="h-4 w-4" />
+                        <span className="sr-only">Send</span>
+                      </Button>
+                    </form>
+                  </CardContent>
+                </div>
               </>
             ) : (
-              <div className="flex-grow flex items-center justify-center flex-col p-6 text-center text-gray-500">
+              <div className="flex-1 flex items-center justify-center flex-col p-6 text-center text-gray-500">
                 <MessageCircle className="h-16 w-16 mb-4 text-gray-300" />
                 <h3 className="text-lg font-medium mb-1">No conversation selected</h3>
                 <p className="text-sm">Choose a conversation from the list to start chatting</p>

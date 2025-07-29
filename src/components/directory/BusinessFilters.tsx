@@ -23,25 +23,25 @@ const categories = [
 
 export const BusinessFilters = ({ onApplyFilters, onClearFilters }: BusinessFiltersProps) => {
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("all");
   const [verifiedOnly, setVerifiedOnly] = useState(false);
-  const [sortBy, setSortBy] = useState("");
+  const [sortBy, setSortBy] = useState("default");
   const [appliedFilters, setAppliedFilters] = useState<string[]>([]);
 
   const handleApplyFilters = () => {
     const filters = {
       searchTerm,
-      category: selectedCategory,
+      category: selectedCategory === "all" ? "" : selectedCategory,
       verifiedOnly,
-      sortBy
+      sortBy: sortBy === "default" ? "" : sortBy
     };
     
     // Create applied filters array for display
     const newAppliedFilters = [];
     if (searchTerm) newAppliedFilters.push(`Search: ${searchTerm}`);
-    if (selectedCategory) newAppliedFilters.push(`Category: ${selectedCategory}`);
+    if (selectedCategory !== "all") newAppliedFilters.push(`Category: ${selectedCategory}`);
     if (verifiedOnly) newAppliedFilters.push("Verified Only");
-    if (sortBy) newAppliedFilters.push(`Sort: ${sortBy}`);
+    if (sortBy !== "default") newAppliedFilters.push(`Sort: ${sortBy}`);
     
     setAppliedFilters(newAppliedFilters);
     onApplyFilters(filters);
@@ -49,9 +49,9 @@ export const BusinessFilters = ({ onApplyFilters, onClearFilters }: BusinessFilt
 
   const handleClearFilters = () => {
     setSearchTerm("");
-    setSelectedCategory("");
+    setSelectedCategory("all");
     setVerifiedOnly(false);
-    setSortBy("");
+    setSortBy("default");
     setAppliedFilters([]);
     onClearFilters();
   };
@@ -62,9 +62,9 @@ export const BusinessFilters = ({ onApplyFilters, onClearFilters }: BusinessFilt
     
     // Reset the corresponding filter state
     if (filterToRemove.startsWith("Search:")) setSearchTerm("");
-    if (filterToRemove.startsWith("Category:")) setSelectedCategory("");
+    if (filterToRemove.startsWith("Category:")) setSelectedCategory("all");
     if (filterToRemove === "Verified Only") setVerifiedOnly(false);
-    if (filterToRemove.startsWith("Sort:")) setSortBy("");
+    if (filterToRemove.startsWith("Sort:")) setSortBy("default");
     
     handleApplyFilters();
   };
@@ -95,7 +95,7 @@ export const BusinessFilters = ({ onApplyFilters, onClearFilters }: BusinessFilt
                 <SelectValue placeholder="All Categories" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All Categories</SelectItem>
+                <SelectItem value="all">All Categories</SelectItem>
                 {categories.map((category) => (
                   <SelectItem key={category} value={category}>
                     {category}
@@ -123,7 +123,7 @@ export const BusinessFilters = ({ onApplyFilters, onClearFilters }: BusinessFilt
                 <SelectValue placeholder="Default" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">Default</SelectItem>
+                <SelectItem value="default">Default</SelectItem>
                 <SelectItem value="newest">Newest First</SelectItem>
                 <SelectItem value="rating">Highest Rated</SelectItem>
                 <SelectItem value="name">Name A-Z</SelectItem>
