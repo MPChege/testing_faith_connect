@@ -2,10 +2,11 @@
 from django.contrib.auth import authenticate
 from rest_framework import serializers
 
-from user_auth.models import User
 
 from rest_framework_simplejwt.tokens import RefreshToken
+from django.contrib.auth import get_user_model
 
+User = get_user_model()
 
 
 class RegisterSerializer(serializers.ModelSerializer):
@@ -62,3 +63,16 @@ class LoginSerializer(serializers.Serializer):
             "phone": user.phone,
             "is_active": user.is_active,
         }
+
+class ForgotPasswordOTPSerializer(serializers.Serializer):
+    phone_number = serializers.CharField()
+    @staticmethod
+    def validate_phone_number(value):
+        if not User.objects.filter(phone=value).exists():
+            raise serializers.ValidationError("User with this phone number does not exist.")
+        return value
+
+class ResetPasswordWithOTPSerializer(serializers.Serializer):
+    phone_number = serializers.CharField()
+    otp = serializers.CharField()
+    new_password = serializers.CharField(min_length=6)

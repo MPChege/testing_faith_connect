@@ -1,28 +1,24 @@
+import logging
+import random
 from tokenize import TokenError
 
-from django.shortcuts import render
-
-# Create your views here.
-
-# views.py
-
-import logging
-from rest_framework.views import APIView
-from rest_framework.response import Response
+from django.contrib.auth import get_user_model
 from rest_framework import status
-
-from .UserSerializer.Serializers import RegisterSerializer, LoginSerializer
-from .utils import success_response, error_response
-import logging
-from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.views import APIView
+from rest_framework_simplejwt.serializers import (
+    TokenRefreshSerializer
+)
+from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenRefreshView
-from rest_framework_simplejwt.serializers import TokenRefreshSerializer
+
+from .UserSerializer.Serializers import RegisterSerializer, LoginSerializer, ForgotPasswordOTPSerializer, \
+    ResetPasswordWithOTPSerializer
+from .utils import success_response, error_response
 
 logger = logging.getLogger('user_auth')
+User = get_user_model()  # ✅ Correct User model import
 
-
-# views.py
 
 def mask_sensitive_data(data, sensitive_fields=None):
     sensitive_fields = sensitive_fields or ['password']
@@ -51,7 +47,6 @@ class RegisterAPIView(APIView):
 
         logger.error(f"[REGISTER ERROR] - {serializer.errors}")
         return error_response("Registration failed", serializer.errors)
-
 
 
 class LoginView(APIView):
@@ -93,3 +88,47 @@ class CustomTokenRefreshView(TokenRefreshView):
             return error_response("Token refresh failed", str(e), status.HTTP_400_BAD_REQUEST)
 
         return success_response("Token refreshed", serializer.validated_data)
+
+
+def send_sms(phone_number, otp):
+    print(f"Mock sending OTP {otp} to {phone_number}")  # Replace with real SMS logic
+
+
+class ForgotPasswordOTPView(APIView):
+    def post(self, request):
+        serializer = ForgotPasswordOTPSerializer(data=request.data)
+        if serializer.is_valid():
+            phone = serializer.validated_data['phone_number']
+            try:
+                user = User.objects.get(phone=phone)
+            except User.DoesNotExist:
+                return error_response("User not found with this phone number.")
+
+            otp = str(random.randint(100000, 999999))
+            user.otp = otp
+            user.save()
+
+            send_sms(phone, f"Your OTP is {otp}")
+            return success_response(message="OTP sent successfully.")
+        return error_response(message="Validation failed.", errors=serializer.errors)
+
+
+class ResetPasswordWithOTPView(APIView):
+    def post(self, request):
+        serializer = ResetPasswordWithOTPSerializer(data=request.data)
+        if serializer.is_valid():
+            phone = serializer.validated_data['phone_number']
+            otp = serializer.validated_data['otp']
+            new_password = serializer.validated_data['new_password']
+
+            try:
+                user = User.objects.get(phone=phone, otp=otp)
+            except User.DoesNotExist:
+                return error_response("Invalid phone number or OTP.")
+
+            user.set_password(new_password)
+            user.otp = None  # Clear OTP after use
+            user.save()
+
+            return success_response(message="Password reset successful.")
+        return error_response(message="Reset failed.", errors=serializer.errors)
