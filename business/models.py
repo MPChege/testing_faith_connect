@@ -1,0 +1,120 @@
+from django.db import models
+
+# Create your models here.
+
+import uuid
+from django.db import models
+from django.conf import settings
+from django.contrib.auth import get_user_model
+
+
+User = get_user_model()
+
+from django.db import models
+from django.utils.text import slugify
+
+class Category(models.Model):
+    name = models.CharField(max_length=100, unique=True)
+    slug = models.SlugField(unique=True, blank=True)
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.name)
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return self.name
+
+class Business(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='businesses')
+    business_name = models.CharField(max_length=255)
+    category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True, related_name="businesses")
+    description = models.TextField(blank=True, null=True)
+    long_description = models.TextField(blank=True, null=True)
+
+    phone = models.CharField(max_length=20, blank=True, null=True)
+    email = models.EmailField(max_length=255, blank=True, null=True)
+    website = models.URLField(max_length=500, blank=True, null=True)
+
+    address = models.TextField()
+    city = models.CharField(max_length=100, blank=True, null=True)
+    county = models.CharField(max_length=100, blank=True, null=True)
+    state = models.CharField(max_length=100, blank=True, null=True)
+    zip_code = models.CharField(max_length=20, blank=True, null=True)
+
+    latitude = models.DecimalField(max_digits=10, decimal_places=8, blank=True, null=True)
+    longitude = models.DecimalField(max_digits=11, decimal_places=8, blank=True, null=True)
+
+    rating = models.DecimalField(max_digits=3, decimal_places=2, default=0)
+    review_count = models.IntegerField(default=0)
+
+    is_verified = models.BooleanField(default=False)
+    is_featured = models.BooleanField(default=False)
+    is_active = models.BooleanField(default=True)
+
+    business_image_url = models.URLField(max_length=500, blank=True, null=True)
+    business_logo_url = models.URLField(max_length=500, blank=True, null=True)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.business_name
+
+class BusinessHour(models.Model):
+    DAYS_OF_WEEK = [
+        (0, 'Sunday'),
+        (1, 'Monday'),
+        (2, 'Tuesday'),
+        (3, 'Wednesday'),
+        (4, 'Thursday'),
+        (5, 'Friday'),
+        (6, 'Saturday'),
+    ]
+
+    business = models.ForeignKey('Business', on_delete=models.CASCADE, related_name='hours')
+    day_of_week = models.IntegerField(choices=DAYS_OF_WEEK)
+    open_time = models.TimeField(blank=True, null=True)
+    close_time = models.TimeField(blank=True, null=True)
+    is_closed = models.BooleanField(default=False)
+
+    class Meta:
+        unique_together = ('business', 'day_of_week')
+
+    def __str__(self):
+        return f"{self.business.business_name} - {self.get_day_of_week_display()}"
+
+
+
+class Service(models.Model):
+    business = models.ForeignKey('Business', on_delete=models.CASCADE, related_name='services')
+    name = models.CharField(max_length=255)
+    description = models.TextField(blank=True, null=True)
+    price_range = models.CharField(max_length=100, blank=True, null=True)  # e.g., "KSh 500 - 1000"
+    duration = models.CharField(max_length=100, blank=True, null=True)     # e.g., "30 mins", "1 hour"
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.name} ({self.business.business_name})"
+
+class Review(models.Model):
+    business = models.ForeignKey('Business', on_delete=models.CASCADE, related_name='reviews')
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='reviews')
+    rating = models.PositiveSmallIntegerField()
+    review_text = models.TextField(blank=True, null=True)
+    is_verified = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = ('business', 'user')
+        constraints = [
+            models.CheckConstraint(check=models.Q(rating__gte=1, rating__lte=5), name='rating_between_1_and_5'),
+        ]
+
+    def __str__(self):
+        return f"Review by {self.user} on {self.business}"
+
+

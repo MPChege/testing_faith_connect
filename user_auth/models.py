@@ -1,14 +1,17 @@
-from django.db import models
-
 # Create your models here.
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, BaseUserManager
 from django.db import models
-import uuid
+
 
 class UserManager(BaseUserManager):
     def create_user(self, partnership_number, password=None, **extra_fields):
         if not partnership_number:
             raise ValueError("Partnership number is required")
+
+        # Ensure normal users cannot be created as staff/superuser
+        extra_fields.setdefault('is_staff', False)
+        extra_fields.setdefault('is_superuser', False)
+
         user = self.model(partnership_number=partnership_number, **extra_fields)
         user.set_password(password)
         user.save(using=self._db)
