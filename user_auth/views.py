@@ -9,9 +9,11 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 
-from .UserSerializer.Serializers import RegisterSerializer
+from .UserSerializer.Serializers import RegisterSerializer, LoginSerializer
 from .utils import success_response, error_response
 import logging
+
+from rest_framework.permissions import AllowAny
 
 logger = logging.getLogger('user_auth')
 
@@ -35,23 +37,27 @@ class RegisterAPIView(APIView):
         if serializer.is_valid():
             user = serializer.save()
             logger.info(f"[REGISTER SUCCESS] - User {user.id}")
-            return Response(
-                success_response("User registered successfully",
-                                 {"user_id": user.id,
-                                        "email": user.email,
-                                        "phone": user.phone,
-                                        "user_type": user.user_type,
-                                        "partnerNo":user.partnership_number,
-                                  }),
-                status=status.HTTP_201_CREATED
-            )
+            return success_response("User registered successfully", {
+                "user_id": user.id,
+                "email": user.email,
+                "phone": user.phone,
+                "user_type": user.user_type,
+                "partnerNo": user.partnership_number,
+            })
 
         logger.error(f"[REGISTER ERROR] - {serializer.errors}")
-        return Response(
-            error_response("Registration failed", serializer.errors),
-            status=status.HTTP_400_BAD_REQUEST
-        )
+        return error_response("Registration failed", serializer.errors)
 
 
+
+class LoginView(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        serializer = LoginSerializer(data=request.data)
+        if serializer.is_valid():
+            logger.info(f"Login successful for partnership: {serializer.validated_data['partnership_number']}")
+            return success_response("Login successful", serializer.validated_data)
+        return error_response("Login failed", serializer.errors)
 
 
