@@ -3,14 +3,12 @@ from rest_framework import generics, filters
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
-from django.core.exceptions import ObjectDoesNotExist
-
-
+from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
 
 from business import permissions
-from business.models import Business, Category,Favorite
+from business.models import Business, Category, Favorite, Product
 from business.permissions import IsBusinessUser
-from business.serializers import BusinessSerializer, CategorySerializer, FavoriteSerializer
+from business.serializers import BusinessSerializer, CategorySerializer, FavoriteSerializer, ProductSerializer
 from core import settings
 from user_auth.utils import success_response, error_response
 
@@ -137,3 +135,39 @@ class FavoriteToggleView(APIView):
             return success_response("Favorite removed successfully", status_code=status.HTTP_204_NO_CONTENT)
         except ObjectDoesNotExist:
             return error_response("Favorite not found", status_code=status.HTTP_404_NOT_FOUND)
+
+# List and Create products
+class BusinessProductListCreateView(generics.ListCreateAPIView):
+    serializer_class = ProductSerializer
+    permission_classes = [IsAuthenticated]
+    filter_backends = [filters.SearchFilter, filters.OrderingFilter, DjangoFilterBackend]
+    search_fields = ['name', 'description']
+    ordering_fields = ['price', 'created_at']
+    filterset_fields = ['in_stock', 'price_currency']
+
+    def get_queryset(self):
+        business_id = self.kwargs.get('business_id')
+        return Product.objects.filter(business_id=business_id, is_active=True)
+
+    def perform_create(self, serializer):
+        business_id = self.kwargs.get('business_id')
+        try:
+            business = Business.objects.get(id=business_id)
+        except ObjectDoesNotExist:
+            raise PermissionDenied("Business not found")
+
+        serializer.save(business=business)
+
+
+class ProductRetrieveUpdateView(generics.RetrieveUpdateAPIView):
+    queryset = Product.objects.filter(is_active=True)
+    serializer_class = ProductSerializer
+    permission_classes = [IsAuthenticated]
+    lookup_field = 'id'
+
+    def perform_update(self, serializer):
+        product = self.get_object()
+        if product.business.user != self.request.user:
+            raise PermissionDenied("Only the owner can update this product")
+        serializer.save()
+

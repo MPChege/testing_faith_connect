@@ -1,6 +1,7 @@
 from django.urls import path
 
-from business.views import BusinessDetailAPIView, BusinessUpdateView, BusinessListCreateAPIView, CategoryListAPIView,  FavoriteToggleView
+from business.views import BusinessDetailAPIView, BusinessUpdateView, BusinessListCreateAPIView, CategoryListAPIView, \
+  FavoriteToggleView, BusinessProductListCreateView, ProductRetrieveUpdateView
 
 urlpatterns = [
   path('', BusinessListCreateAPIView.as_view(), name='business-list'),
@@ -11,5 +12,9 @@ urlpatterns = [
     path("categories", CategoryListAPIView.as_view(), name="category-list"),
 
   path('<uuid:id>/favorite', FavoriteToggleView.as_view(), name='favorite-toggle'),
+
+  path('api/businesses/<uuid:business_id>/products', BusinessProductListCreateView.as_view(),
+       name='business-product-list-create'),
+  path('products/<uuid:id>', ProductRetrieveUpdateView.as_view(), name='product-detail'),
 
 ]
