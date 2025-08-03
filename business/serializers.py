@@ -1,4 +1,4 @@
-from business.models import BusinessHour, Service, Review, Business, Category
+from business.models import BusinessHour, Service, Review, Business, Category, Favorite
 
 from rest_framework import serializers
 
@@ -60,3 +60,9 @@ class CategorySerializer(serializers.ModelSerializer):
 
 
 
+class FavoriteSerializer(serializers.ModelSerializer):
+    business = BusinessSerializer(read_only=True)
+
+    class Meta:
+        model = Favorite
+        fields = ['id', 'business', 'created_at']

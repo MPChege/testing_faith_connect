@@ -117,4 +117,24 @@ class Review(models.Model):
     def __str__(self):
         return f"Review by {self.user} on {self.business}"
 
+class Favorite(models.Model):
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='favorites'
+    )
+    business = models.ForeignKey(
+        'Business',  # or 'yourapp.Business' if Business is in another app
+        on_delete=models.CASCADE,
+        related_name='favorited_by'
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('user', 'business')
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.user} favorited {self.business}"
+
 

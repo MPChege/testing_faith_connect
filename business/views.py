@@ -2,10 +2,15 @@ from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import generics, filters
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.views import APIView
+from django.core.exceptions import ObjectDoesNotExist
 
-from business.models import Business, Category
+
+
+from business import permissions
+from business.models import Business, Category,Favorite
 from business.permissions import IsBusinessUser
-from business.serializers import BusinessSerializer, CategorySerializer
+from business.serializers import BusinessSerializer, CategorySerializer, FavoriteSerializer
 from core import settings
 from user_auth.utils import success_response, error_response
 
@@ -93,3 +98,42 @@ class CategoryListAPIView(generics.ListAPIView):
 #             })
 #         except Exception as e:
 #             return Response({"detail": str(e)}, status=500)
+
+
+class UserFavoritesListView(generics.ListAPIView):
+    serializer_class = FavoriteSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return Favorite.objects.filter(user=self.request.user)
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+        serializer = self.get_serializer(queryset, many=True)
+        return success_response("Fetched favorites successfully", serializer.data)
+
+
+class FavoriteToggleView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, id):
+        user = request.user
+        try:
+            business = Business.objects.get(id=id)
+        except ObjectDoesNotExist:
+            return error_response("Business not found", status_code=status.HTTP_404_NOT_FOUND)
+
+        favorite, created = Favorite.objects.get_or_create(user=user, business=business)
+        if not created:
+            return error_response("Business already favorited")
+
+        return success_response("Business favorited successfully", status_code=status.HTTP_201_CREATED)
+
+    def delete(self, request, id):
+        user = request.user
+        try:
+            favorite = Favorite.objects.get(user=user, business__id=id)
+            favorite.delete()
+            return success_response("Favorite removed successfully", status_code=status.HTTP_204_NO_CONTENT)
+        except ObjectDoesNotExist:
+            return error_response("Favorite not found", status_code=status.HTTP_404_NOT_FOUND)
