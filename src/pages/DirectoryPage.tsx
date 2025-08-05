@@ -448,8 +448,8 @@ const DirectoryPage = () => {
               <div className="w-12 h-12 bg-gradient-to-br from-fem-terracotta to-fem-gold rounded-full flex items-center justify-center mx-auto mb-2">
                 <Building2 className="w-6 h-6 text-white" />
               </div>
-              <div className="text-2xl font-bold text-fem-navy">150+</div>
-              <div className="text-sm text-gray-600">Businesses</div>
+              <div className="text-2xl font-bold text-fem-navy">1000+</div>
+              <div className="text-sm text-gray-600">Local Businesses</div>
             </motion.div>
             
             <motion.div variants={itemVariants} className="bg-white/80 backdrop-blur-sm rounded-xl p-4 text-center shadow-lg">

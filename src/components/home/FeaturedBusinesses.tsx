@@ -3,53 +3,60 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Star, Phone, Globe, MapPin, Shield } from "lucide-react";
+import { useBusiness } from "@/contexts/BusinessContext";
+import { Business } from "@/services/api";
 
-const featuredBusinesses = [
-  {
-    id: 1,
-    name: "Nyama Choma Paradise",
-    category: "Restaurant",
-    description: "Authentic Kenyan nyama choma and traditional dishes in a warm, family-friendly atmosphere.",
-    rating: 4.8,
-    reviewCount: 42,
-    phone: "+254 700 123 456",
-    website: "nyamachomaparadise.co.ke",
-    address: "123 Kimathi Street, Nairobi, Kenya",
-    verified: true,
-    image: "/lovable-uploads/f1a3f2a4-bbe7-46e5-be66-1ad39e35defa.png",
-    hours: "Mon-Sat 7AM-9PM"
-  },
-  {
-    id: 2,
-    name: "Mombasa AutoCare",
-    category: "Automotive",
-    description: "Complete automotive repair and maintenance services in Mombasa. We treat your car like our own.",
-    rating: 4.9,
-    reviewCount: 38,
-    phone: "+254 733 987 654",
-    website: "mombasaautocare.co.ke",
-    address: "456 Moi Avenue, Mombasa, Kenya",
-    verified: true,
-    image: "/lovable-uploads/f1a3f2a4-bbe7-46e5-be66-1ad39e35defa.png",
-    hours: "Mon-Fri 8AM-6PM"
-  },
-  {
-    id: 3,
-    name: "TechSavvy Kenya",
-    category: "Technology",
-    description: "Professional IT services and computer repair in Nairobi. Web development for businesses and individuals.",
-    rating: 4.7,
-    reviewCount: 29,
-    phone: "+254 711 456 789",
-    website: "techsavvykenya.co.ke",
-    address: "789 Westlands Road, Nairobi, Kenya",
-    verified: true,
-    image: "/lovable-uploads/f1a3f2a4-bbe7-46e5-be66-1ad39e35defa.png",
-    hours: "Mon-Fri 9AM-5PM"
-  }
-];
+// Function to select featured businesses based on rating and review criteria
+const selectFeaturedBusinesses = (businesses: Business[], count: number = 3) => {
+  return businesses
+    .filter(business => 
+      business.is_active && 
+      business.is_verified && 
+      business.rating >= 4.0 && 
+      business.review_count >= 10
+    )
+    .sort((a, b) => {
+      // Primary sort: Rating (descending)
+      if (b.rating !== a.rating) {
+        return b.rating - a.rating;
+      }
+      // Secondary sort: Review count (descending)
+      return b.review_count - a.review_count;
+    })
+    .slice(0, count);
+};
 
 export const FeaturedBusinesses = () => {
+  const { businesses, isLoading, error } = useBusiness();
+  
+  // Select featured businesses from the API data
+  const featuredBusinesses = selectFeaturedBusinesses(businesses, 3);
+  
+  if (isLoading) {
+    return (
+      <section className="py-8 sm:py-16 bg-gray-50">
+        <div className="container mx-auto px-4">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-fem-terracotta mx-auto"></div>
+            <p className="mt-2 text-gray-600">Loading featured businesses...</p>
+          </div>
+        </div>
+      </section>
+    );
+  }
+  
+  if (error) {
+    return (
+      <section className="py-8 sm:py-16 bg-gray-50">
+        <div className="container mx-auto px-4">
+          <div className="text-center">
+            <p className="text-red-600">Error loading businesses: {error}</p>
+          </div>
+        </div>
+      </section>
+    );
+  }
+  
   return (
     <section className="py-8 sm:py-16 bg-gray-50">
       <div className="container mx-auto px-4">
@@ -80,21 +87,21 @@ export const FeaturedBusinesses = () => {
                 <div className="flex items-start gap-3 sm:gap-4 mb-3 sm:mb-4">
                   <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg overflow-hidden flex-shrink-0">
                     <img 
-                      src={business.image} 
-                      alt={`${business.name} logo`} 
+                      src={business.business_image_url || "/placeholder.svg"} 
+                      alt={`${business.business_name} logo`} 
                       className="w-full h-full object-cover"
                     />
                   </div>
                   
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1">
-                      <h3 className="font-semibold text-base sm:text-lg text-fem-navy truncate">{business.name}</h3>
-                      {business.verified && (
+                      <h3 className="font-semibold text-base sm:text-lg text-fem-navy truncate">{business.business_name}</h3>
+                      {business.is_verified && (
                         <Shield className="w-4 h-4 text-green-600 flex-shrink-0" />
                       )}
                     </div>
                     <Badge variant="outline" className="bg-fem-gold/10 text-fem-navy border-fem-gold/20 mb-2 text-xs">
-                      {business.category}
+                      {business.category?.name || 'Uncategorized'}
                     </Badge>
                   </div>
                 </div>
@@ -111,7 +118,7 @@ export const FeaturedBusinesses = () => {
                     ))}
                   </div>
                   <span className="text-xs sm:text-sm font-medium text-fem-navy ml-1">{business.rating}</span>
-                  <span className="text-xs text-gray-500">({business.reviewCount} reviews)</span>
+                  <span className="text-xs text-gray-500">({business.review_count} reviews)</span>
                 </div>
                 
                 <div className="space-y-1 sm:space-y-2 text-xs text-gray-600 mb-4">

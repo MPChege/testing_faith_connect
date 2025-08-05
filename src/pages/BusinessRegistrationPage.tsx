@@ -53,6 +53,7 @@ const BusinessRegistrationPage = () => {
     category: "",
     description: "",
     longDescription: "",
+    businessType: "both" as "products" | "services" | "both", // NEW FIELD
     
     // Contact Information
     phone: "",
@@ -273,6 +274,87 @@ const BusinessRegistrationPage = () => {
             ))}
           </SelectContent>
         </Select>
+      </motion.div>
+
+      <motion.div variants={itemVariants}>
+        <Label className="text-base font-medium">Business Type *</Label>
+        <p className="text-sm text-gray-600 mb-3">What does your business offer?</p>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div 
+            className={`p-4 border-2 rounded-lg cursor-pointer transition-all duration-200 ${
+              formData.businessType === 'products' 
+                ? 'border-fem-terracotta bg-fem-terracotta/10' 
+                : 'border-gray-300 hover:border-gray-400'
+            }`}
+            onClick={() => handleInputChange("businessType", "products")}
+          >
+            <div className="flex items-center gap-3">
+              <div className={`w-4 h-4 rounded-full border-2 ${
+                formData.businessType === 'products' 
+                  ? 'border-fem-terracotta bg-fem-terracotta' 
+                  : 'border-gray-400'
+              }`}>
+                {formData.businessType === 'products' && (
+                  <div className="w-2 h-2 bg-white rounded-full m-0.5"></div>
+                )}
+              </div>
+              <div>
+                <div className="font-medium text-fem-navy">Products Only</div>
+                <div className="text-sm text-gray-600">Sell physical goods</div>
+              </div>
+            </div>
+          </div>
+
+          <div 
+            className={`p-4 border-2 rounded-lg cursor-pointer transition-all duration-200 ${
+              formData.businessType === 'services' 
+                ? 'border-fem-terracotta bg-fem-terracotta/10' 
+                : 'border-gray-300 hover:border-gray-400'
+            }`}
+            onClick={() => handleInputChange("businessType", "services")}
+          >
+            <div className="flex items-center gap-3">
+              <div className={`w-4 h-4 rounded-full border-2 ${
+                formData.businessType === 'services' 
+                  ? 'border-fem-terracotta bg-fem-terracotta' 
+                  : 'border-gray-400'
+              }`}>
+                {formData.businessType === 'services' && (
+                  <div className="w-2 h-2 bg-white rounded-full m-0.5"></div>
+                )}
+              </div>
+              <div>
+                <div className="font-medium text-fem-navy">Services Only</div>
+                <div className="text-sm text-gray-600">Provide services</div>
+              </div>
+            </div>
+          </div>
+
+          <div 
+            className={`p-4 border-2 rounded-lg cursor-pointer transition-all duration-200 ${
+              formData.businessType === 'both' 
+                ? 'border-fem-terracotta bg-fem-terracotta/10' 
+                : 'border-gray-300 hover:border-gray-400'
+            }`}
+            onClick={() => handleInputChange("businessType", "both")}
+          >
+            <div className="flex items-center gap-3">
+              <div className={`w-4 h-4 rounded-full border-2 ${
+                formData.businessType === 'both' 
+                  ? 'border-fem-terracotta bg-fem-terracotta' 
+                  : 'border-gray-400'
+              }`}>
+                {formData.businessType === 'both' && (
+                  <div className="w-2 h-2 bg-white rounded-full m-0.5"></div>
+                )}
+              </div>
+              <div>
+                <div className="font-medium text-fem-navy">Both</div>
+                <div className="text-sm text-gray-600">Products & services</div>
+              </div>
+            </div>
+          </div>
+        </div>
       </motion.div>
 
       <motion.div variants={itemVariants}>

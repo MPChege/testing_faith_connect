@@ -125,20 +125,20 @@ export const Hero = () => {
 
                 {/* Enhanced Trust Indicators */}
                 <div className="flex flex-wrap items-center gap-12 pt-12 scroll-reveal">
-                  <div className="flex items-center gap-4">
-                    <div className="flex -space-x-3">
-                      {[1,2,3,4,5].map(i => (
-                        <div 
-                          key={i} 
-                          className="w-12 h-12 rounded-full bg-gradient-to-br from-fem-gold to-fem-terracotta border-3 border-white shadow-xl hover:scale-110 transition-transform duration-300" 
-                        />
-                      ))}
+                                      <div className="flex items-center gap-4">
+                      <div className="flex -space-x-3">
+                        {[1,2,3,4,5].map(i => (
+                          <div 
+                            key={i} 
+                            className="w-12 h-12 rounded-full bg-gradient-to-br from-fem-gold to-fem-terracotta border-3 border-white shadow-xl hover:scale-110 transition-transform duration-300" 
+                          />
+                        ))}
+                      </div>
+                      <div>
+                        <div className="text-white font-mont font-semibold text-lg tracking-wide">1000+ Local Businesses</div>
+                        <div className="text-gray-300 text-sm font-mont">Active Community</div>
+                      </div>
                     </div>
-                    <div>
-                      <div className="text-white font-mont font-semibold text-lg tracking-wide">500+ Members</div>
-                      <div className="text-gray-300 text-sm font-mont">Active Community</div>
-                    </div>
-                  </div>
                   
                   <div className="flex items-center gap-4">
                     <Globe className="w-10 h-10 text-fem-gold animate-float" />
