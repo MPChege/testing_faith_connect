@@ -82,17 +82,14 @@ const DirectoryPage = () => {
     
     // Handle category parameter
     const categoryParam = urlParams.get('category');
-    console.log('URL category param:', categoryParam, 'Categories:', categories);
     if (categoryParam && categories) {
       // Find the category by slug
       const category = categories.find(cat => cat.slug === categoryParam);
-      console.log('Found category:', category);
       if (category) {
         setFilters(prev => ({
           ...prev,
           category: category.name
         }));
-        console.log('Set category filter to:', category.name);
       }
     }
   }, [categories]);
