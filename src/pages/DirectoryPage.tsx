@@ -200,7 +200,7 @@ const DirectoryPage = () => {
     totalBusinesses: Array.isArray(businesses) ? businesses.length : 0,
     verifiedBusinesses: Array.isArray(businesses) ? businesses.filter(b => b.is_verified).length : 0,
     averageRating: Array.isArray(businesses) && businesses.length > 0 
-      ? (businesses.reduce((sum, b) => sum + b.rating, 0) / businesses.length).toFixed(1)
+      ? (businesses.reduce((sum, b) => sum + parseFloat(b.rating.toString()), 0) / businesses.length).toFixed(1)
       : "0.0",
     totalReviews: Array.isArray(businesses) ? businesses.reduce((sum, b) => sum + b.review_count, 0) : 0
   };

@@ -21,7 +21,7 @@ export const CommunityStats = () => {
     const totalBusinesses = businesses.length;
     const verifiedBusinesses = businesses.filter(b => b.is_verified).length;
     const averageRating = businesses.length > 0 
-      ? (businesses.reduce((sum, b) => sum + b.rating, 0) / businesses.length).toFixed(1)
+      ? (businesses.reduce((sum, b) => sum + parseFloat(b.rating.toString()), 0) / businesses.length).toFixed(1)
       : "0.0";
     
     // For now, we'll estimate users based on businesses (assuming 1 user per business + community users)

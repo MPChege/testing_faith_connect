@@ -39,7 +39,7 @@ export interface Business {
   zip_code?: string;
   latitude?: number;
   longitude?: number;
-  rating: number;
+  rating: number | string;
   review_count: number;
   is_verified: boolean;
   is_featured: boolean;
