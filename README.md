@@ -156,6 +156,16 @@ python manage.py collectstatic # Collect static files
 python manage.py createsuperuser # Create admin user
 ```
 
+Partnership number: TEST12345
+First name: TESTER
+Last name: SYSTEM 
+User type: community
+Password: Test12345
+Password (again): Test12345
+Superuser created successfully.
+
+Manuch01
+
 ### Environment Variables
 
 #### Frontend (.env)
