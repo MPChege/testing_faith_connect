@@ -1,4 +1,9 @@
-import axios, { AxiosInstance, AxiosResponse, AxiosError } from 'axios';
+import axios, { AxiosInstance, AxiosResponse, AxiosError, InternalAxiosRequestConfig } from 'axios';
+
+// Extend axios config to include _retry property
+interface ExtendedAxiosRequestConfig extends InternalAxiosRequestConfig {
+  _retry?: boolean;
+}
 
 // Types
 export interface User {
@@ -97,7 +102,9 @@ export interface AuthTokens {
 }
 
 export interface LoginRequest {
-  partnership_number: string;
+  partnership_number?: string;
+  identifier?: string; // email or phone
+  auth_method?: 'email' | 'phone';
   password: string;
 }
 
@@ -175,8 +182,8 @@ class ApiService {
       async (error: AxiosError) => {
         const originalRequest = error.config;
         
-        if (error.response?.status === 401 && originalRequest && !originalRequest._retry) {
-          originalRequest._retry = true;
+        if (error.response?.status === 401 && originalRequest && !(originalRequest as ExtendedAxiosRequestConfig)._retry) {
+          (originalRequest as ExtendedAxiosRequestConfig)._retry = true;
           
           try {
             const refreshToken = localStorage.getItem('refresh_token');
@@ -361,20 +368,4 @@ class ApiService {
 }
 
 // Create singleton instance
-export const apiService = new ApiService();
-
-// Export types for use in components
-export type {
-  User,
-  Business,
-  Category,
-  Service,
-  Product,
-  Review,
-  AuthTokens,
-  LoginRequest,
-  RegisterRequest,
-  BusinessCreateRequest,
-  OTPRequest,
-  OTPVerificationRequest,
-}; 
+export const apiService = new ApiService(); 

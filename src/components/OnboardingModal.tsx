@@ -169,7 +169,7 @@ export const OnboardingModal = ({ userType, isOpen, onComplete }: OnboardingModa
           initial={{ scale: 0.9, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           exit={{ scale: 0.9, opacity: 0 }}
-          className="w-full max-w-4xl max-h-[90vh] overflow-hidden"
+          className="w-full max-w-2xl max-h-[80vh] overflow-hidden"
         >
           <Card className="relative h-full">
             {/* Header */}
@@ -196,36 +196,36 @@ export const OnboardingModal = ({ userType, isOpen, onComplete }: OnboardingModa
             </div>
 
             {/* Content */}
-            <div className="flex-1 p-6">
-              <div className="flex items-center justify-center min-h-[400px]">
+            <div className="flex-1 p-4">
+              <div className="flex items-center justify-center min-h-[300px]">
                 <motion.div
                   key={currentStep}
                   initial={{ opacity: 0, x: 20 }}
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: -20 }}
                   transition={{ duration: 0.3 }}
-                  className="text-center max-w-2xl"
+                  className="text-center max-w-lg"
                 >
                   {/* Icon */}
-                  <div className="mb-6">
-                    <div className={`w-20 h-20 bg-gradient-to-r ${steps[currentStep].color} rounded-full flex items-center justify-center mx-auto mb-4`}>
+                  <div className="mb-4">
+                    <div className={`w-16 h-16 bg-gradient-to-r ${steps[currentStep].color} rounded-full flex items-center justify-center mx-auto mb-3`}>
                       {(() => {
                         const IconComponent = steps[currentStep].icon;
-                        return <IconComponent className="w-10 h-10 text-white" />;
+                        return <IconComponent className="w-8 h-8 text-white" />;
                       })()}
                     </div>
                   </div>
 
                   {/* Title and Subtitle */}
-                  <h1 className="text-3xl font-bold text-fem-navy mb-2">
+                  <h1 className="text-2xl font-bold text-fem-navy mb-2">
                     {steps[currentStep].title}
                   </h1>
-                  <p className="text-lg text-fem-terracotta mb-6">
+                  <p className="text-base text-fem-terracotta mb-4">
                     {steps[currentStep].subtitle}
                   </p>
 
                   {/* Content */}
-                  <p className="text-gray-700 text-lg leading-relaxed">
+                  <p className="text-gray-700 text-base leading-relaxed">
                     {steps[currentStep].content}
                   </p>
                 </motion.div>
@@ -233,9 +233,9 @@ export const OnboardingModal = ({ userType, isOpen, onComplete }: OnboardingModa
             </div>
 
             {/* Footer */}
-            <div className="p-6 border-t bg-gray-50">
+            <div className="p-4 border-t bg-gray-50">
               {/* Progress Indicators */}
-              <div className="flex items-center justify-center gap-2 mb-6">
+              <div className="flex items-center justify-center gap-2 mb-4">
                 {steps.map((_, index) => (
                   <button
                     key={index}

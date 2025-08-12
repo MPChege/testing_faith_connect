@@ -4,10 +4,13 @@ import { Button } from "@/components/ui/button";
 import { Search, LogOut, User, Menu, X } from "lucide-react";
 import { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
+import { AuthModal } from "@/components/auth/AuthModal";
 
 export const Navbar = () => {
   const { user, isAuthenticated, logout } = useAuth();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [authModalTab, setAuthModalTab] = useState<'login' | 'signup'>('login');
   const navigate = useNavigate();
 
   const handleLogout = async () => {
@@ -26,6 +29,15 @@ export const Navbar = () => {
 
   const closeMobileMenu = () => {
     setIsMobileMenuOpen(false);
+  };
+
+  const openAuthModal = (tab: 'login' | 'signup' = 'login') => {
+    setAuthModalTab(tab);
+    setIsAuthModalOpen(true);
+  };
+
+  const closeAuthModal = () => {
+    setIsAuthModalOpen(false);
   };
 
   return (
@@ -51,19 +63,20 @@ export const Navbar = () => {
           <Link to="/directory" className="text-fem-navy hover:text-fem-terracotta transition-colors">
             Business Directory
           </Link>
-          {isAuthenticated && user?.user_type === "business" && (
-            <Link to="/register-business" className="text-fem-navy hover:text-fem-terracotta transition-colors">
-              List Business
-            </Link>
-          )}
+                     {isAuthenticated && user?.user_type === "business" && (
+             <>
+               <Link to="/register-business" className="text-fem-navy hover:text-fem-terracotta transition-colors">
+                 List Business
+               </Link>
+               <Link to="/manage-business" className="text-fem-navy hover:text-fem-terracotta transition-colors">
+                 Manage Business
+               </Link>
+             </>
+           )}
           <Link to="/about" className="text-fem-navy hover:text-fem-terracotta transition-colors">
             About
           </Link>
-          {isAuthenticated && (
-            <Link to="/chat" className="text-fem-navy hover:text-fem-terracotta transition-colors">
-              Chat
-            </Link>
-          )}
+
         </div>
         
         {/* Desktop Actions */}
@@ -90,18 +103,21 @@ export const Navbar = () => {
               </Button>
             </div>
           ) : (
-            <>
-              <Link to="/login">
-                <Button variant="outline" className="border-fem-terracotta text-fem-terracotta hover:bg-fem-terracotta hover:text-white">
-                  Sign In
-                </Button>
-              </Link>
-              <Link to="/register">
-                <Button className="bg-fem-terracotta hover:bg-fem-terracotta/90 text-white">
-                  Register
-                </Button>
-              </Link>
-            </>
+                         <>
+               <Button 
+                 variant="outline" 
+                 className="border-fem-terracotta text-fem-terracotta hover:bg-fem-terracotta hover:text-white"
+                 onClick={() => openAuthModal('login')}
+               >
+                 Sign In
+               </Button>
+               <Button 
+                 className="bg-fem-terracotta hover:bg-fem-terracotta/90 text-white"
+                 onClick={() => openAuthModal('signup')}
+               >
+                 Register
+               </Button>
+             </>
           )}
         </div>
 
@@ -135,13 +151,22 @@ export const Navbar = () => {
                 Business Directory
               </Link>
               {isAuthenticated && user?.user_type === "business" && (
-                <Link 
-                  to="/register-business" 
-                  className="block py-2 text-fem-navy hover:text-fem-terracotta transition-colors"
-                  onClick={closeMobileMenu}
-                >
-                  List Business
-                </Link>
+                <>
+                  <Link 
+                    to="/register-business" 
+                    className="block py-2 text-fem-navy hover:text-fem-terracotta transition-colors"
+                    onClick={closeMobileMenu}
+                  >
+                    List Business
+                  </Link>
+                  <Link 
+                    to="/manage-business" 
+                    className="block py-2 text-fem-navy hover:text-fem-terracotta transition-colors"
+                    onClick={closeMobileMenu}
+                  >
+                    Manage Business
+                  </Link>
+                </>
               )}
               <Link 
                 to="/about" 
@@ -150,15 +175,7 @@ export const Navbar = () => {
               >
                 About
               </Link>
-              {isAuthenticated && (
-                <Link 
-                  to="/chat" 
-                  className="block py-2 text-fem-navy hover:text-fem-terracotta transition-colors"
-                  onClick={closeMobileMenu}
-                >
-                  Chat
-                </Link>
-              )}
+
             </div>
 
             {/* Mobile Actions */}
@@ -182,22 +199,38 @@ export const Navbar = () => {
                 </>
               ) : (
                 <>
-                  <Link to="/login" onClick={closeMobileMenu}>
-                    <Button variant="outline" className="w-full border-fem-terracotta text-fem-terracotta hover:bg-fem-terracotta hover:text-white">
-                      Sign In
-                    </Button>
-                  </Link>
-                  <Link to="/register" onClick={closeMobileMenu}>
-                    <Button className="w-full bg-fem-terracotta hover:bg-fem-terracotta/90 text-white">
-                      Register
-                    </Button>
-                  </Link>
+                  <Button 
+                    variant="outline" 
+                    className="w-full border-fem-terracotta text-fem-terracotta hover:bg-fem-terracotta hover:text-white"
+                    onClick={() => {
+                      closeMobileMenu();
+                      openAuthModal('login');
+                    }}
+                  >
+                    Sign In
+                  </Button>
+                  <Button 
+                    className="w-full bg-fem-terracotta hover:bg-fem-terracotta/90 text-white"
+                    onClick={() => {
+                      closeMobileMenu();
+                      openAuthModal('signup');
+                    }}
+                  >
+                    Register
+                  </Button>
                 </>
               )}
             </div>
           </div>
         </div>
       )}
+
+      {/* Auth Modal */}
+      <AuthModal 
+        isOpen={isAuthModalOpen}
+        onClose={closeAuthModal}
+        defaultTab={authModalTab}
+      />
     </nav>
   );
 };

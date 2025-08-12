@@ -12,7 +12,7 @@ import DirectoryPage from "./pages/DirectoryPage";
 import AboutPage from "./pages/AboutPage";
 import NotFound from "./pages/NotFound";
 import SignInPage from "./pages/SignInPage";
-import ChatPage from "./pages/ChatPage";
+
 import ProfilePage from "./pages/ProfilePage";
 
 import BusinessDetailPage from "./pages/BusinessDetailPage";
@@ -21,6 +21,7 @@ import BusinessRegistrationSuccessPage from "./pages/BusinessRegistrationSuccess
 import UserRegistrationPage from "./pages/UserRegistrationPage";
 import WelcomePage from "./pages/WelcomePage";
 import BusinessOnboardingPage from "./pages/BusinessOnboardingPage";
+import { BusinessManagementPage } from "./pages/BusinessManagementPage";
 import { OTPVerificationPage } from "@/components/otp/OTPVerificationPage";
 
 const queryClient = new QueryClient({
@@ -48,11 +49,12 @@ const App = () => (
                 <Route path="/register" element={<UserRegistrationPage />} />
                 <Route path="/welcome" element={<WelcomePage />} />
                 <Route path="/business-onboarding" element={<BusinessOnboardingPage />} />
-                <Route path="/chat" element={<ChatPage />} />
+        
 
                 <Route path="/business/:id" element={<BusinessDetailPage />} />
                 <Route path="/register-business" element={<BusinessRegistrationPage />} />
                 <Route path="/business-registration-success" element={<BusinessRegistrationSuccessPage />} />
+                <Route path="/manage-business" element={<BusinessManagementPage />} />
                 <Route path="/verify-otp" element={<OTPVerificationPage />} />
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<NotFound />} />
