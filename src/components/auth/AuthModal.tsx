@@ -123,12 +123,23 @@ export const AuthModal: React.FC<AuthModalProps> = ({
       }
       
       onClose();
-    } catch (error) {
-      toast({
-        title: "Login failed",
-        description: "Please check your credentials and try again",
-        variant: "destructive"
-      });
+    } catch (error: any) {
+      // Handle specific validation errors from the backend
+      if (error.response?.data?.errors) {
+        const errors = error.response.data.errors;
+        const errorMessages = Object.values(errors).join(', ');
+        toast({
+          title: "Login failed",
+          description: errorMessages,
+          variant: "destructive"
+        });
+      } else {
+        toast({
+          title: "Login failed",
+          description: "Please check your credentials and try again",
+          variant: "destructive"
+        });
+      }
     } finally {
       setIsLoading(false);
     }
@@ -179,12 +190,23 @@ export const AuthModal: React.FC<AuthModalProps> = ({
       }
       
       onClose();
-    } catch (error) {
-      toast({
-        title: "Registration failed",
-        description: "Please try again or contact support",
-        variant: "destructive"
-      });
+    } catch (error: any) {
+      // Handle specific validation errors from the backend
+      if (error.response?.data?.errors) {
+        const errors = error.response.data.errors;
+        const errorMessages = Object.values(errors).join(', ');
+        toast({
+          title: "Registration failed",
+          description: errorMessages,
+          variant: "destructive"
+        });
+      } else {
+        toast({
+          title: "Registration failed",
+          description: "Please try again or contact support",
+          variant: "destructive"
+        });
+      }
     } finally {
       setIsLoading(false);
     }
