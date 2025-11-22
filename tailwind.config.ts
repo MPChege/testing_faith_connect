@@ -13,10 +13,30 @@ export default {
 	theme: {
 		container: {
 			center: true,
-			padding: '2rem',
+			padding: {
+				DEFAULT: '1rem',
+				sm: '1.5rem',
+				md: '2rem',
+				lg: '2.5rem',
+				xl: '3rem',
+				'2xl': '4rem',
+			},
 			screens: {
-				'2xl': '1400px'
+				sm: '640px',
+				md: '768px',
+				lg: '1024px',
+				xl: '1280px',
+				'2xl': '1400px',
 			}
+		},
+		screens: {
+			'xs': '475px',
+			'sm': '640px',
+			'md': '768px',
+			'lg': '1024px',
+			'xl': '1280px',
+			'2xl': '1536px',
+			'3xl': '1920px',
 		},
 		extend: {
 			fontFamily: {
@@ -259,7 +279,7 @@ export default {
 				'scroll-left': 'scroll-left 30s linear infinite',
 				'scroll-stats': 'scroll-stats 20s linear infinite',
 				'scroll-categories': 'scroll-categories 40s linear infinite',
-				'shimmer': 'shimmer 2s ease-in-out infinite'
+				'shimmer': 'shimmer 3s ease-in-out infinite'
 			},
 			animationPlayState: {
 				'paused': 'paused',
@@ -277,6 +297,22 @@ export default {
 				'tooltip': '80',
 				'notification': '90',
 				'max': '100'
+			},
+			spacing: {
+				'18': '4.5rem',
+				'88': '22rem',
+				'100': '25rem',
+				'112': '28rem',
+				'128': '32rem',
+			},
+			maxWidth: {
+				'8xl': '88rem',
+				'9xl': '96rem',
+			},
+			transitionDuration: {
+				'400': '400ms',
+				'600': '600ms',
+				'800': '800ms',
 			}
 		},
 		utilities: {

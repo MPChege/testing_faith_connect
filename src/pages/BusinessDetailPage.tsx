@@ -811,7 +811,7 @@ const BusinessDetailPage = () => {
 
   return (
     <div 
-      className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-50 flex flex-col overflow-x-hidden" 
+      className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-50 flex flex-col overflow-x-hidden relative" 
       style={{ 
         scrollBehavior: 'smooth',
         WebkitOverflowScrolling: 'touch',
@@ -819,6 +819,21 @@ const BusinessDetailPage = () => {
       }}
     >
       <Navbar />
+      {/* Floating Like Button */}
+      {isAuthenticated && business && (
+        <div className="fixed top-20 right-4 sm:right-6 z-50">
+          <LikeButton
+            itemId={business.id}
+            itemType="business"
+            itemName={business.business_name}
+            businessName={business.business_name}
+            businessId={business.id}
+            description={business.description}
+            size="lg"
+            className="bg-white/95 backdrop-blur-sm hover:bg-white shadow-2xl border-2 border-fem-terracotta/20 hover:border-fem-terracotta rounded-full w-14 h-14 sm:w-16 sm:h-16 p-0 transition-all duration-300 hover:scale-110 active:scale-95"
+          />
+        </div>
+      )}
       <main 
         className="flex-grow scroll-smooth" 
         style={{ 
@@ -977,35 +992,42 @@ const BusinessDetailPage = () => {
                     console.log('Tab changed to:', value);
                     setActiveTab(value);
                   }} className="w-full">
-                    <TabsList className="grid w-full grid-cols-2 lg:grid-cols-4 bg-gray-100/50 backdrop-blur-sm">
+                    <TabsList className="grid w-full grid-cols-2 lg:grid-cols-4 bg-gray-100 p-1.5 gap-1.5 sm:gap-2">
                       <TabsTrigger 
                         value="overview" 
-                        className="text-xs sm:text-sm px-2 sm:px-3 py-2 whitespace-nowrap data-[state=active]:bg-fem-terracotta data-[state=active]:text-white"
+                        className="text-xs sm:text-sm px-2 sm:px-3 py-2.5 sm:py-3 whitespace-nowrap data-[state=active]:bg-gradient-to-r data-[state=active]:from-fem-terracotta data-[state=active]:to-fem-gold data-[state=active]:text-white data-[state=inactive]:text-gray-600 data-[state=inactive]:hover:text-gray-800 data-[state=active]:shadow-lg rounded-lg font-medium transition-all duration-300"
                       >
                         Overview
                       </TabsTrigger>
                       <TabsTrigger 
                         value="services" 
-                        className="text-xs sm:text-sm px-2 sm:px-3 py-2 whitespace-nowrap data-[state=active]:bg-fem-terracotta data-[state=active]:text-white"
+                        className="text-xs sm:text-sm px-2 sm:px-3 py-2.5 sm:py-3 whitespace-nowrap data-[state=active]:bg-gradient-to-r data-[state=active]:from-fem-terracotta data-[state=active]:to-fem-gold data-[state=active]:text-white data-[state=inactive]:text-gray-600 data-[state=inactive]:hover:text-gray-800 data-[state=active]:shadow-lg rounded-lg font-medium transition-all duration-300"
                       >
-                        Services ({services.length}/20)
+                        <span className="hidden sm:inline">Services ({services.length}/20)</span>
+                        <span className="sm:hidden">Services</span>
                       </TabsTrigger>
                       <TabsTrigger 
                         value="products" 
-                        className="text-xs sm:text-sm px-2 sm:px-3 py-2 whitespace-nowrap data-[state=active]:bg-fem-terracotta data-[state=active]:text-white"
+                        className="text-xs sm:text-sm px-2 sm:px-3 py-2.5 sm:py-3 whitespace-nowrap data-[state=active]:bg-gradient-to-r data-[state=active]:from-fem-terracotta data-[state=active]:to-fem-gold data-[state=active]:text-white data-[state=inactive]:text-gray-600 data-[state=inactive]:hover:text-gray-800 data-[state=active]:shadow-lg rounded-lg font-medium transition-all duration-300"
                       >
-                        Products ({business.products ? business.products.length : 0}/20)
+                        <span className="hidden sm:inline">Products ({business.products ? business.products.length : 0}/20)</span>
+                        <span className="sm:hidden">Products</span>
                       </TabsTrigger>
                       <TabsTrigger 
                         value="reviews" 
-                        className="text-xs sm:text-sm px-2 sm:px-3 py-2 whitespace-nowrap data-[state=active]:bg-fem-terracotta data-[state=active]:text-white"
+                        className="text-xs sm:text-sm px-2 sm:px-3 py-2.5 sm:py-3 whitespace-nowrap data-[state=active]:bg-gradient-to-r data-[state=active]:from-fem-terracotta data-[state=active]:to-fem-gold data-[state=active]:text-white data-[state=inactive]:text-gray-600 data-[state=inactive]:hover:text-gray-800 data-[state=active]:shadow-lg rounded-lg font-medium transition-all duration-300"
                       >
                         Reviews
                       </TabsTrigger>
                     </TabsList>
                     
                     <TabsContent value="overview" className="mt-6" key="overview-tab">
-                      <div className="space-y-6">
+                      <motion.div 
+                        className="space-y-6"
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.5, ease: "easeOut" }}
+                      >
                         {/* Business Logo section removed as requested */}
 
                         {/* Business Profile Image Upload Section */}
@@ -1091,11 +1113,16 @@ const BusinessDetailPage = () => {
                             </CardContent>
                           </GlassmorphismCard>
                         </MotionWrapper>
-                      </div>
+                      </motion.div>
                     </TabsContent>
                     
                     <TabsContent value="services" className="mt-6" key="services-tab">
-                      <div className="space-y-6">
+                      <motion.div 
+                        className="space-y-6"
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.5, ease: "easeOut" }}
+                      >
                         <div className="flex items-center justify-between mb-6">
                           <h3 className="text-2xl font-bold text-fem-navy">Services</h3>
                           {user && user.user_type === 'business' && isBusinessOwner && (
@@ -1276,11 +1303,16 @@ const BusinessDetailPage = () => {
                             )}
                           </div>
                         )}
-                      </div>
+                      </motion.div>
                     </TabsContent>
                     
                     <TabsContent value="products" className="mt-6" key="products-tab">
-                      <div className="space-y-6">
+                      <motion.div 
+                        className="space-y-6"
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.5, ease: "easeOut" }}
+                      >
                         <div className="flex items-center justify-between mb-6">
                           <h3 className="text-2xl font-bold text-fem-navy">Products</h3>
                           {user && user.user_type === 'business' && isBusinessOwner && (
@@ -1465,11 +1497,17 @@ const BusinessDetailPage = () => {
                             )}
                           </div>
                         )}
-                      </div>
+                      </motion.div>
                     </TabsContent>
                     
                     <TabsContent value="reviews" className="mt-6" key="reviews-tab">
-                      <div ref={reviewsRef} className="space-y-6">
+                      <motion.div 
+                        ref={reviewsRef} 
+                        className="space-y-6"
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.5, ease: "easeOut" }}
+                      >
                         <div className="flex items-center justify-between mb-6">
                           <h3 className="text-2xl font-bold text-fem-navy">Customer Reviews</h3>
                           {user && !userReviewData && !isBusinessOwner && (
@@ -1582,7 +1620,7 @@ const BusinessDetailPage = () => {
                             </p>
                         </div>
                         )}
-                      </div>
+                      </motion.div>
                     </TabsContent>
                   </Tabs>
                 </CardContent>

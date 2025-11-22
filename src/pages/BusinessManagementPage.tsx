@@ -51,6 +51,8 @@ import HelpButton from '@/components/onboarding/HelpButton';
 import ScrollToTop from '@/components/ui/ScrollToTop';
 import { ProtectedContactInfo } from '@/components/ui/ProtectedContactInfo';
 import { InlineLogo } from '@/components/ui/Logo';
+import { motion } from 'framer-motion';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 
 interface BusinessData {
@@ -890,48 +892,116 @@ export const BusinessManagementPage: React.FC = () => {
 
           {/* Tabs */}
           <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-8">
-            <div className="bg-white rounded-2xl shadow-lg border border-gray-200/50 overflow-hidden">
+            {/* Mobile Dropdown - Show on mobile, hide on larger screens */}
+            <div className="lg:hidden mb-6 mt-4">
+              <Select value={activeTab} onValueChange={setActiveTab}>
+                <SelectTrigger className="w-full h-12 bg-gradient-to-r from-fem-terracotta to-fem-gold text-white border-0 rounded-lg shadow-md focus:ring-2 focus:ring-fem-terracotta/20 font-semibold">
+                  <SelectValue>
+                    <div className="flex items-center gap-2">
+                      {activeTab === 'overview' && <Building2 className="h-4 w-4" />}
+                      {activeTab === 'services' && <Settings className="h-4 w-4" />}
+                      {activeTab === 'products' && <Package className="h-4 w-4" />}
+                      {activeTab === 'support' && <Users className="h-4 w-4" />}
+                      {activeTab === 'analytics' && <Star className="h-4 w-4" />}
+                      <span className="font-semibold">
+                        {activeTab === 'overview' && 'Overview'}
+                        {activeTab === 'services' && 'Services'}
+                        {activeTab === 'products' && 'Products'}
+                        {activeTab === 'support' && 'Support'}
+                        {activeTab === 'analytics' && 'Analytics'}
+                      </span>
+                    </div>
+                  </SelectValue>
+                </SelectTrigger>
+                <SelectContent className="bg-white border-2 border-gray-200 rounded-lg shadow-lg">
+                  <SelectItem 
+                    value="overview" 
+                    className="flex items-center gap-2 py-3 cursor-pointer focus:bg-gradient-to-r focus:from-fem-terracotta focus:to-fem-gold focus:text-white [&_svg]:focus:text-white"
+                  >
+                    <Building2 className="h-4 w-4 text-fem-terracotta" />
+                    <span>Overview</span>
+                  </SelectItem>
+                  <SelectItem 
+                    value="services" 
+                    className="flex items-center gap-2 py-3 cursor-pointer focus:bg-gradient-to-r focus:from-fem-terracotta focus:to-fem-gold focus:text-white [&_svg]:focus:text-white"
+                  >
+                    <Settings className="h-4 w-4 text-fem-terracotta" />
+                    <span>Services</span>
+                  </SelectItem>
+                  <SelectItem 
+                    value="products" 
+                    className="flex items-center gap-2 py-3 cursor-pointer focus:bg-gradient-to-r focus:from-fem-terracotta focus:to-fem-gold focus:text-white [&_svg]:focus:text-white"
+                  >
+                    <Package className="h-4 w-4 text-fem-terracotta" />
+                    <span>Products</span>
+                  </SelectItem>
+                  <SelectItem 
+                    value="support" 
+                    className="flex items-center gap-2 py-3 cursor-pointer focus:bg-gradient-to-r focus:from-fem-terracotta focus:to-fem-gold focus:text-white [&_svg]:focus:text-white"
+                  >
+                    <Users className="h-4 w-4 text-fem-terracotta" />
+                    <span>Support</span>
+                  </SelectItem>
+                  <SelectItem 
+                    value="analytics" 
+                    className="flex items-center gap-2 py-3 cursor-pointer focus:bg-gradient-to-r focus:from-fem-terracotta focus:to-fem-gold focus:text-white [&_svg]:focus:text-white"
+                  >
+                    <Star className="h-4 w-4 text-fem-terracotta" />
+                    <span>Analytics</span>
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Desktop Tabs - Hide on mobile, show on larger screens */}
+            <div className="hidden lg:block bg-white rounded-2xl shadow-lg border border-gray-200/50 overflow-hidden">
               <TabsList className="grid w-full grid-cols-5 bg-gradient-to-r from-gray-50 to-white p-2 h-auto">
                 <TabsTrigger 
                   value="overview" 
-                  className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-fem-terracotta data-[state=active]:to-fem-gold data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-300 py-4 px-6 rounded-xl"
+                  className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-fem-terracotta data-[state=active]:to-fem-gold data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-300 py-4 px-6 rounded-xl text-sm font-medium"
                 >
                   <Building2 className="h-4 w-4 mr-2" />
                   Overview
                 </TabsTrigger>
                 <TabsTrigger 
                   value="services" 
-                  className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-fem-terracotta data-[state=active]:to-fem-gold data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-300 py-4 px-6 rounded-xl"
+                  className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-fem-terracotta data-[state=active]:to-fem-gold data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-300 py-4 px-6 rounded-xl text-sm font-medium"
                 >
                   <Settings className="h-4 w-4 mr-2" />
                   Services
                 </TabsTrigger>
                 <TabsTrigger 
                   value="products" 
-                  className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-fem-terracotta data-[state=active]:to-fem-gold data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-300 py-4 px-6 rounded-xl"
+                  className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-fem-terracotta data-[state=active]:to-fem-gold data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-300 py-4 px-6 rounded-xl text-sm font-medium"
                 >
                   <Package className="h-4 w-4 mr-2" />
                   Products
                 </TabsTrigger>
                 <TabsTrigger 
                   value="support" 
-                  className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-fem-terracotta data-[state=active]:to-fem-gold data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-300 py-4 px-6 rounded-xl"
+                  className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-fem-terracotta data-[state=active]:to-fem-gold data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-300 py-4 px-6 rounded-xl text-sm font-medium"
                 >
                   <Users className="h-4 w-4 mr-2" />
                   Support
                 </TabsTrigger>
                 <TabsTrigger 
                   value="analytics" 
-                  className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-fem-terracotta data-[state=active]:to-fem-gold data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-300 py-4 px-6 rounded-xl"
+                  className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-fem-terracotta data-[state=active]:to-fem-gold data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-300 py-4 px-6 rounded-xl text-sm font-medium"
                 >
                   <Star className="h-4 w-4 mr-2" />
                   Analytics
                 </TabsTrigger>
-            </TabsList>
+              </TabsList>
             </div>
 
             {/* Overview Tab */}
             <TabsContent value="overview" className="space-y-6">
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, ease: "easeOut" }}
+                className="space-y-6"
+              >
               {/* Business Information Section */}
               <Card>
                 <CardHeader>
@@ -1261,11 +1331,17 @@ export const BusinessManagementPage: React.FC = () => {
                   )}
                 </CardContent>
               </Card>
-
+              </motion.div>
             </TabsContent>
 
             {/* Services Tab */}
             <TabsContent value="services" className="space-y-8">
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, ease: "easeOut" }}
+                className="space-y-8"
+              >
               <div className="bg-white rounded-2xl shadow-lg border border-gray-200/50 p-8">
                 <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-6">
                   <div>
@@ -1389,10 +1465,17 @@ export const BusinessManagementPage: React.FC = () => {
                   </div>
                 </div>
               )}
+              </motion.div>
             </TabsContent>
 
             {/* Products Tab */}
             <TabsContent value="products" className="space-y-6">
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, ease: "easeOut" }}
+                className="space-y-6"
+              >
               <div className="flex justify-between items-center">
                 <h2 className="text-xl font-semibold">Your Products</h2>
                 <div className="flex items-center gap-3">
@@ -1492,19 +1575,33 @@ export const BusinessManagementPage: React.FC = () => {
                   </CardContent>
                 </Card>
               )}
+              </motion.div>
             </TabsContent>
 
             {/* Business Support Tab */}
             <TabsContent value="support" className="space-y-6">
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, ease: "easeOut" }}
+                className="space-y-6"
+              >
               <BusinessSupportSection 
                 businessId={businessData?.id || ''}
                 businessName={businessData?.business_name || ''}
                 requests={professionalServiceRequests}
               />
+              </motion.div>
             </TabsContent>
 
             {/* Analytics Tab */}
             <TabsContent value="analytics" className="space-y-6">
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, ease: "easeOut" }}
+                className="space-y-6"
+              >
               {analytics ? (
                 <>
                   {/* Overview Stats */}
@@ -1814,6 +1911,7 @@ export const BusinessManagementPage: React.FC = () => {
                   </CardContent>
                 </Card>
               )}
+              </motion.div>
             </TabsContent>
           </Tabs>
         </div>

@@ -32,6 +32,7 @@ import { analytics } from '@/services/analytics';
 import type { BusinessHour } from '@/services/api';
 import { ReviewSection } from '@/components/ReviewSection';
 import { useAuth } from '@/contexts/AuthContext';
+import LikeButton from '@/components/LikeButton';
 
 export const ProductDetailPage: React.FC = () => {
   const { id, categorySlug, productSlug } = useParams<{ 
@@ -311,8 +312,25 @@ export const ProductDetailPage: React.FC = () => {
   ];
 
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50">
+    <div className="min-h-screen flex flex-col bg-gray-50 relative">
       <Navbar />
+      {/* Floating Like Button */}
+      {isAuthenticated && product && business && (
+        <div className="fixed top-20 right-4 sm:right-6 z-50">
+          <LikeButton
+            itemId={String(product.id)}
+            itemType="product"
+            itemName={product.name}
+            businessName={business.business_name}
+            businessId={business.id}
+            description={product.description}
+            price={String(product.price)}
+            priceCurrency={product.price_currency}
+            size="lg"
+            className="bg-white/95 backdrop-blur-sm hover:bg-white shadow-2xl border-2 border-fem-terracotta/20 hover:border-fem-terracotta rounded-full w-14 h-14 sm:w-16 sm:h-16 p-0 transition-all duration-300 hover:scale-110 active:scale-95"
+          />
+        </div>
+      )}
       <main className="flex-grow">
         <div className="container mx-auto px-4 py-8">
           {/* Back Button */}

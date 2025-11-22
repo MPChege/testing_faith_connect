@@ -99,48 +99,50 @@ const LoginPage: React.FC = () => {
   return (
     <div className="min-h-screen bg-white relative">
       <Navbar />
-      <div className="flex items-center justify-center p-4 sm:p-6 lg:p-8 pt-20 relative z-10 min-h-screen">
-
-      <Card className="w-full max-w-md sm:max-w-lg relative z-10 shadow-lg border border-gray-200 bg-white mx-4 sm:mx-0">
-        <CardHeader className="text-center pb-6 pt-8 px-6 sm:px-8">
-          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-fem-navy mb-3">
-            Welcome to Faith Connect
-          </h1>
-          <p className="text-gray-600 text-sm sm:text-base leading-relaxed">
-            Sign in instantly using your phone number or email
-          </p>
-        </CardHeader>
+      <div className="flex items-center justify-center p-4 sm:p-6 lg:p-8 pt-20 sm:pt-24 relative z-10 min-h-[calc(100vh-4rem)] sm:min-h-screen">
+        <Card className="w-full max-w-md relative z-10 shadow-sm border border-gray-100 bg-white mx-4 sm:mx-0 rounded-2xl overflow-hidden">
+          <CardHeader className="text-center pb-8 pt-10 px-6 sm:px-8">
+            <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-fem-terracotta/10 flex items-center justify-center">
+              <UserPlus className="w-8 h-8 text-fem-terracotta" />
+            </div>
+            <h1 className="text-2xl sm:text-3xl font-semibold text-gray-900 mb-2">
+              Welcome back
+            </h1>
+            <p className="text-gray-500 text-sm sm:text-base">
+              Sign in to continue
+            </p>
+          </CardHeader>
 
         <CardContent className="px-6 sm:px-8 pb-8 space-y-6">
           <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as 'email' | 'phone')} className="w-full">
-            <TabsList className="grid w-full grid-cols-2 mb-6 bg-gray-100 p-1 rounded-xl">
+            <TabsList className="grid w-full grid-cols-2 mb-6 bg-transparent p-1.5 gap-1.5 sm:gap-2">
               <TabsTrigger 
                 value="phone"
-                className="flex items-center gap-2 data-[state=active]:bg-white data-[state=active]:shadow-md data-[state=active]:text-fem-terracotta rounded-lg transition-all duration-300"
+                className="flex items-center justify-center gap-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-fem-terracotta data-[state=active]:to-fem-gold data-[state=active]:text-white data-[state=inactive]:text-gray-600 data-[state=inactive]:hover:text-gray-800 data-[state=active]:shadow-lg rounded-lg transition-all duration-300 font-medium py-2.5 sm:py-3 px-3 sm:px-4 text-sm"
               >
                 <Phone className="w-4 h-4" />
-                Phone
+                <span>Phone</span>
               </TabsTrigger>
               <TabsTrigger 
                 value="email" 
-                className="flex items-center gap-2 data-[state=active]:bg-white data-[state=active]:shadow-md data-[state=active]:text-fem-terracotta rounded-lg transition-all duration-300"
+                className="flex items-center justify-center gap-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-fem-terracotta data-[state=active]:to-fem-gold data-[state=active]:text-white data-[state=inactive]:text-gray-600 data-[state=inactive]:hover:text-gray-800 data-[state=active]:shadow-lg rounded-lg transition-all duration-300 font-medium py-2.5 sm:py-3 px-3 sm:px-4 text-sm"
               >
                 <Mail className="w-4 h-4" />
-                Email
+                <span>Email</span>
               </TabsTrigger>
             </TabsList>
 
-            <TabsContent value="phone" className="space-y-6 mt-0">
+            <TabsContent value="phone" className="space-y-4 mt-0">
               <div className="space-y-2">
-                <label htmlFor="phone" className="text-sm font-medium text-fem-navy">
+                <label htmlFor="phone" className="text-sm font-medium text-gray-700">
                   Phone Number
                 </label>
                 <div className="relative">
-                  <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 text-fem-darkgray w-4 h-4 sm:w-5 sm:h-5" />
+                  <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
                   <Input
                     id="phone"
                     type="tel"
-                    placeholder="e.g., +254712345678"
+                    placeholder="+254 712 345 678"
                     value={phone}
                     onChange={(e) => {
                       const digitsOnly = e.target.value.replace(/\D/g, '');
@@ -162,7 +164,7 @@ const LoginPage: React.FC = () => {
                       setPhone(formatted);
                     }}
                     onKeyPress={handleKeyPress}
-                    className="pl-10 h-12 sm:h-14 border-gray-300 focus:border-fem-terracotta focus:ring-fem-terracotta rounded-xl bg-white text-sm sm:text-base"
+                    className="pl-10 pr-4 h-12 border border-gray-300 focus:border-fem-terracotta focus:ring-1 focus:ring-fem-terracotta rounded-lg bg-white text-base transition-all"
                     disabled={isLoading}
                     inputMode="tel"
                     autoComplete="tel"
@@ -171,21 +173,21 @@ const LoginPage: React.FC = () => {
               </div>
             </TabsContent>
 
-            <TabsContent value="email" className="space-y-6 mt-0">
+            <TabsContent value="email" className="space-y-4 mt-0">
               <div className="space-y-2">
-                <label htmlFor="email" className="text-sm font-medium text-fem-navy">
+                <label htmlFor="email" className="text-sm font-medium text-gray-700">
                   Email Address
                 </label>
                 <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4 sm:w-5 sm:h-5" />
+                  <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
                   <Input
                     id="email"
                     type="email"
-                    placeholder="Enter your email address"
+                    placeholder="you@example.com"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     onKeyPress={handleKeyPress}
-                    className="pl-10 h-12 sm:h-14 border-gray-300 focus:border-fem-terracotta focus:ring-fem-terracotta rounded-xl bg-white text-sm sm:text-base"
+                    className="pl-10 pr-4 h-12 border border-gray-300 focus:border-fem-terracotta focus:ring-1 focus:ring-fem-terracotta rounded-lg bg-white text-base transition-all"
                     disabled={isLoading}
                   />
                 </div>
@@ -193,8 +195,7 @@ const LoginPage: React.FC = () => {
             </TabsContent>
           </Tabs>
 
-          {/* Add proper spacing before the button */}
-          <div className="mt-8">
+          <div className="mt-6">
             <Button
               onClick={handleSendOTP}
               disabled={
@@ -204,34 +205,34 @@ const LoginPage: React.FC = () => {
                   : phone === '+254' || phone.trim().length <= 4)
               }
               size="lg"
-              className="w-full bg-gradient-to-r from-fem-terracotta to-fem-gold hover:from-fem-terracotta/90 hover:to-fem-gold/90 text-white shadow-md hover:shadow-lg transition-all duration-300"
+              className="w-full h-12 bg-gradient-to-r from-fem-terracotta to-fem-gold hover:from-fem-terracotta/90 hover:to-fem-gold/90 text-white shadow-md hover:shadow-lg transition-all duration-300 rounded-lg text-base font-medium disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isLoading ? (
                 <>
-                  <Loader2 className="w-4 h-4 sm:w-5 sm:h-5 mr-2 animate-spin" />
-                  Checking your details...
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Sending...
                 </>
               ) : (
                 <>
                   Continue
-                  <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 ml-2" />
+                  <ArrowRight className="w-4 h-4 ml-2" />
                 </>
               )}
             </Button>
           </div>
 
           <div className="mt-6 text-center">
-                <p className="text-xs text-gray-600">
-                  By continuing, you agree to our{' '}
-                  <a href="/terms-and-conditions" className="text-fem-terracotta hover:underline">
-                    Terms of Service
-                  </a>{' '}
-                  and{' '}
-                  <a href="/privacy-policy" className="text-fem-terracotta hover:underline">
-                    Privacy Policy
-                  </a>
-                </p>
-              </div>
+            <p className="text-xs text-gray-500">
+              By continuing, you agree to our{' '}
+              <a href="/terms-and-conditions" className="text-fem-terracotta hover:underline">
+                Terms
+              </a>{' '}
+              and{' '}
+              <a href="/privacy-policy" className="text-fem-terracotta hover:underline">
+                Privacy Policy
+              </a>
+            </p>
+          </div>
         </CardContent>
       </Card>
       </div>
