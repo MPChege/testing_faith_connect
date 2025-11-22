@@ -37,7 +37,8 @@ import {
   X,
   Upload,
   MessageSquare,
-  Package
+  Package,
+  Building2
 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { useErrorHandler } from "@/hooks/useErrorHandler";
@@ -149,20 +150,24 @@ const ProfilePage = () => {
 
   // Fetch complete user profile from API
   const fetchUserProfile = async () => {
+    // Prevent multiple simultaneous calls
+    if (hasLoadedInitialData.current) {
+      return;
+    }
+
     try {
+      setLoading(true);
       console.log('ProfilePage: Fetching complete user profile...');
-      const userData = await apiService.getCurrentUser();
+      
+      // Add timeout wrapper for mobile devices
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Request timeout')), 15000)
+      );
+      
+      const userDataPromise = apiService.getCurrentUser();
+      const userData = await Promise.race([userDataPromise, timeoutPromise]) as any;
+      
       console.log('ProfilePage: Complete user profile received:', userData);
-      console.log('ProfilePage: User data keys:', Object.keys(userData));
-      console.log('ProfilePage: User data email:', userData.email);
-      console.log('ProfilePage: User data first_name:', userData.first_name);
-      console.log('ProfilePage: User data last_name:', userData.last_name);
-      console.log('ProfilePage: User data phone:', userData.phone);
-      console.log('ProfilePage: User data partnership_number:', userData.partnership_number);
-      console.log('ProfilePage: User data address:', userData.address);
-      console.log('ProfilePage: User data city:', userData.city);
-      console.log('ProfilePage: User data county:', userData.county);
-      console.log('ProfilePage: User data bio:', userData.bio);
       
       if (userData) {
         // Store userData in state for email access
@@ -221,48 +226,66 @@ const ProfilePage = () => {
           profile_image_url: userData.profile_image_url || userData.profile_photo_url || user?.profile_image_url,
         });
         
-        setLoading(false);
-        
-        // Fetch user stats after profile is loaded
-        await fetchUserStats();
+        // Fetch user stats after profile is loaded (don't await to prevent blocking)
+        fetchUserStats().catch(err => {
+          console.error('Error fetching user stats:', err);
+          // Don't show error to user, just log it
+        });
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('ProfilePage: Error fetching user profile:', error);
-      setLoading(false);
+      
+      // If we have user data from context, use it as fallback
+      if (user && (user.first_name || user.firstName)) {
+        const newProfileData = {
+          firstName: user.first_name || user.firstName || "",
+          lastName: user.last_name || user.lastName || "",
+          address: user.address || "",
+          city: user.city || "",
+          county: user.county || "",
+          bio: user.bio || "",
+          website: user.website || ""
+        };
+        setProfileData(newProfileData);
+        hasLoadedInitialData.current = true;
+      }
+      
+      const errorMessage = error?.message?.includes('timeout') 
+        ? "Request timed out. Please check your connection and try again."
+        : "Failed to load profile data. Using cached information.";
+      
       toast({
-        title: "Error",
-        description: "Failed to load profile data. Please try again.",
-        variant: "destructive"
+        title: "Warning",
+        description: errorMessage,
+        variant: "default"
       });
+    } finally {
+      setLoading(false);
     }
   };
 
   // Initialize profile data from user - only fetch once on mount
   useEffect(() => {
-    if (user && !hasLoadedInitialData.current) {
-      console.log('ProfilePage: User object received:', user);
-      console.log('ProfilePage: User type:', user.user_type);
-      console.log('ProfilePage: User keys:', Object.keys(user));
-      console.log('ProfilePage: User email from context:', user.email);
-      
-      // Also check localStorage for email if not in user object
-      try {
-        const storedUser = localStorage.getItem('user');
-        if (storedUser) {
-          const parsedUser = JSON.parse(storedUser);
-          console.log('ProfilePage: Stored user email:', parsedUser.email);
-          if (parsedUser.email && !user.email) {
-            // Update user with email from localStorage
-            updateUser({ ...user, email: parsedUser.email });
-          }
-        }
-      } catch (error) {
-        console.error('ProfilePage: Error reading from localStorage:', error);
-      }
-      
+    // Only run if we have a user and haven't loaded data yet
+    if (user?.id && !hasLoadedInitialData.current && !loading) {
       // Fetch complete user profile from API only once
       fetchUserProfile();
+    } else if (user && !hasLoadedInitialData.current && (user.first_name || user.firstName)) {
+      // Fallback: use existing user data if API call hasn't been made yet
+      const newProfileData = {
+        firstName: user.first_name || user.firstName || "",
+        lastName: user.last_name || user.lastName || "",
+        address: user.address || "",
+        city: user.city || "",
+        county: user.county || "",
+        bio: user.bio || "",
+        website: user.website || ""
+      };
+      setProfileData(newProfileData);
+      hasLoadedInitialData.current = true;
+      setLoading(false);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user?.id]); // Only depend on user.id to prevent re-fetching
 
   // Check authentication
@@ -589,7 +612,7 @@ const ProfilePage = () => {
       <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 flex flex-col">
         <Navbar />
         <main className="flex-grow">
-          <div className="container mx-auto px-4 py-12">
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 lg:py-12">
             
             {/* Enhanced Header with Gradient Background */}
             <motion.div 
@@ -614,7 +637,7 @@ const ProfilePage = () => {
               </div>
             </motion.div>
 
-            <div className="grid grid-cols-1 xl:grid-cols-4 gap-8">
+            <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 lg:gap-8">
               
               {/* Enhanced Profile Card with Glassmorphism */}
               <motion.div 
@@ -622,7 +645,7 @@ const ProfilePage = () => {
                 variants={containerVariants}
                 initial="hidden"
                 animate="visible"
-                className="xl:col-span-1"
+                className="lg:col-span-1"
               >
                 <Card className="backdrop-blur-xl bg-white/90 border-0 shadow-2xl rounded-3xl overflow-hidden">
                   <div className="bg-gradient-to-br from-fem-navy to-fem-terracotta h-24 relative">
@@ -644,10 +667,11 @@ const ProfilePage = () => {
                         </Avatar>
                         <Button
                           size="sm"
-                          className="absolute -bottom-2 -right-2 bg-fem-terracotta hover:bg-fem-terracotta/90 text-white rounded-full w-10 h-10 p-0 shadow-lg border-2 border-white transition-transform duration-200 hover:scale-110"
+                          className="absolute -bottom-2 -right-2 bg-fem-terracotta hover:bg-fem-terracotta/90 text-white rounded-full w-10 h-10 sm:w-12 sm:h-12 p-0 shadow-lg border-2 border-white transition-transform duration-200 hover:scale-110 touch-manipulation"
                           onClick={() => document.getElementById('profile-photo-upload')?.click()}
                           title="Click to upload profile photo"
                           disabled={uploadingPhoto}
+                          aria-label="Upload profile photo"
                         >
                           {uploadingPhoto ? (
                             <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
@@ -658,9 +682,10 @@ const ProfilePage = () => {
                         {user.profile_image_url && (
                           <Button
                             size="sm"
-                            className="absolute -bottom-2 -left-2 bg-red-500 hover:bg-red-600 text-white rounded-full w-8 h-8 p-0 shadow-lg border-2 border-white transition-transform duration-200 hover:scale-110"
+                            className="absolute -bottom-2 -left-2 bg-red-500 hover:bg-red-600 text-white rounded-full w-8 h-8 sm:w-10 sm:h-10 p-0 shadow-lg border-2 border-white transition-transform duration-200 hover:scale-110 touch-manipulation"
                             onClick={handleRemoveProfilePhoto}
                             title="Remove profile photo"
+                            aria-label="Remove profile photo"
                           >
                             <X className="w-4 h-4" />
                           </Button>
@@ -758,7 +783,7 @@ const ProfilePage = () => {
                     <motion.div variants={itemVariants}>
                       <Button
                         onClick={() => setIsEditing(!isEditing)}
-                        className="w-full bg-gradient-to-r from-fem-terracotta to-fem-gold hover:from-fem-terracotta/90 hover:to-fem-gold/90 text-white font-semibold py-3 rounded-xl shadow-lg transform hover:scale-105 transition-all duration-200"
+                        className="w-full bg-gradient-to-r from-fem-terracotta to-fem-gold hover:from-fem-terracotta/90 hover:to-fem-gold/90 text-white font-semibold py-3 sm:py-4 rounded-xl shadow-lg transform hover:scale-105 transition-all duration-200 touch-manipulation min-h-[44px]"
                       >
                         <Edit className="w-4 h-4 mr-2" />
                         {isEditing ? "Cancel Edit" : "Edit Profile"}
@@ -774,7 +799,7 @@ const ProfilePage = () => {
                 variants={containerVariants}
                 initial="hidden"
                 animate="visible"
-                className="xl:col-span-3"
+                className="lg:col-span-3"
               >
                 <Card className="backdrop-blur-xl bg-white/90 border-0 shadow-2xl rounded-3xl overflow-hidden">
                   <CardHeader className="bg-gradient-to-r from-fem-navy via-fem-terracotta to-fem-gold text-white p-8">
@@ -819,7 +844,7 @@ const ProfilePage = () => {
                                 value={profileData.firstName}
                                 onChange={(e) => setProfileData(prev => ({ ...prev, firstName: e.target.value }))}
                                 disabled={!isEditing}
-                                className="h-12 border-2 border-gray-200 focus:border-fem-terracotta focus:ring-2 focus:ring-fem-terracotta/20 rounded-xl transition-all duration-200"
+                                className="h-12 sm:h-14 border-2 border-gray-200 focus:border-fem-terracotta focus:ring-2 focus:ring-fem-terracotta/20 rounded-xl transition-all duration-200 text-base"
                                 placeholder="Enter your first name"
                               />
                             </div>
@@ -830,7 +855,7 @@ const ProfilePage = () => {
                                 value={profileData.lastName}
                                 onChange={(e) => setProfileData(prev => ({ ...prev, lastName: e.target.value }))}
                                 disabled={!isEditing}
-                                className="h-12 border-2 border-gray-200 focus:border-fem-terracotta focus:ring-2 focus:ring-fem-terracotta/20 rounded-xl transition-all duration-200"
+                                className="h-12 sm:h-14 border-2 border-gray-200 focus:border-fem-terracotta focus:ring-2 focus:ring-fem-terracotta/20 rounded-xl transition-all duration-200 text-base"
                                 placeholder="Enter your last name"
                               />
                             </div>
@@ -844,7 +869,7 @@ const ProfilePage = () => {
                                 value={profileData.address}
                                 onChange={(e) => setProfileData(prev => ({ ...prev, address: e.target.value }))}
                                 disabled={!isEditing}
-                                className="h-12 border-2 border-gray-200 focus:border-fem-terracotta focus:ring-2 focus:ring-fem-terracotta/20 rounded-xl transition-all duration-200"
+                                className="h-12 sm:h-14 border-2 border-gray-200 focus:border-fem-terracotta focus:ring-2 focus:ring-fem-terracotta/20 rounded-xl transition-all duration-200 text-base"
                                 placeholder="Enter your address"
                               />
                             </div>
@@ -855,7 +880,7 @@ const ProfilePage = () => {
                                 value={profileData.city}
                                 onChange={(e) => setProfileData(prev => ({ ...prev, city: e.target.value }))}
                                 disabled={!isEditing}
-                                className="h-12 border-2 border-gray-200 focus:border-fem-terracotta focus:ring-2 focus:ring-fem-terracotta/20 rounded-xl transition-all duration-200"
+                                className="h-12 sm:h-14 border-2 border-gray-200 focus:border-fem-terracotta focus:ring-2 focus:ring-fem-terracotta/20 rounded-xl transition-all duration-200 text-base"
                                 placeholder="Enter your city"
                               />
                             </div>
@@ -869,7 +894,7 @@ const ProfilePage = () => {
                                 value={profileData.county}
                                 onChange={(e) => setProfileData(prev => ({ ...prev, county: e.target.value }))}
                                 disabled={!isEditing}
-                                className="h-12 border-2 border-gray-200 focus:border-fem-terracotta focus:ring-2 focus:ring-fem-terracotta/20 rounded-xl transition-all duration-200"
+                                className="h-12 sm:h-14 border-2 border-gray-200 focus:border-fem-terracotta focus:ring-2 focus:ring-fem-terracotta/20 rounded-xl transition-all duration-200 text-base"
                                 placeholder="Enter your county"
                               />
                             </div>
@@ -880,7 +905,7 @@ const ProfilePage = () => {
                                 value={profileData.website}
                                 onChange={(e) => setProfileData(prev => ({ ...prev, website: e.target.value }))}
                                 disabled={!isEditing}
-                                className="h-12 border-2 border-gray-200 focus:border-fem-terracotta focus:ring-2 focus:ring-fem-terracotta/20 rounded-xl transition-all duration-200"
+                                className="h-12 sm:h-14 border-2 border-gray-200 focus:border-fem-terracotta focus:ring-2 focus:ring-fem-terracotta/20 rounded-xl transition-all duration-200 text-base"
                                 placeholder="https://yourwebsite.com"
                               />
                             </div>
@@ -894,7 +919,7 @@ const ProfilePage = () => {
                               onChange={(e) => setProfileData(prev => ({ ...prev, bio: e.target.value }))}
                               disabled={!isEditing}
                               rows={4}
-                              className="border-2 border-gray-200 focus:border-fem-terracotta focus:ring-2 focus:ring-fem-terracotta/20 rounded-xl transition-all duration-200 resize-none"
+                              className="border-2 border-gray-200 focus:border-fem-terracotta focus:ring-2 focus:ring-fem-terracotta/20 rounded-xl transition-all duration-200 resize-none text-base min-h-[120px]"
                               placeholder="Tell us about yourself, your interests, and what you're passionate about..."
                             />
                           </div>
@@ -908,7 +933,7 @@ const ProfilePage = () => {
                               <Button
                                 onClick={handleUpdateProfile}
                                 disabled={saving}
-                                className="bg-gradient-to-r from-fem-terracotta to-fem-gold text-white hover:from-fem-terracotta/90 hover:to-fem-gold/90 shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
+                                className="bg-gradient-to-r from-fem-terracotta to-fem-gold text-white hover:from-fem-terracotta/90 hover:to-fem-gold/90 shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105 touch-manipulation min-h-[44px]"
                               >
                                 {saving ? (
                                   <>
@@ -925,7 +950,7 @@ const ProfilePage = () => {
                               <Button
                                 onClick={() => setIsEditing(false)}
                                 variant="outline"
-                                className="border-2 border-gray-300 hover:border-gray-400 text-gray-700 hover:bg-gray-50 transition-all duration-200"
+                                className="border-2 border-gray-300 hover:border-gray-400 text-gray-700 hover:bg-gray-50 transition-all duration-200 touch-manipulation min-h-[44px]"
                               >
                                 <X className="w-4 h-4 mr-2" />
                                 Cancel

@@ -184,25 +184,30 @@ const OTPVerificationPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-white relative flex items-center justify-center p-4 sm:p-6 lg:p-8">
-      {/* Orange background effects */}
-      <div className="absolute inset-0">
-        <div className="absolute top-1/4 left-0 w-96 h-96 bg-gradient-radial from-fem-terracotta/20 to-transparent rounded-full blur-3xl" />
-        <div className="absolute bottom-0 right-1/4 w-80 h-80 bg-gradient-radial from-fem-terracotta/20 to-transparent rounded-full blur-3xl" />
-      </div>
-
-      <Card className="w-full max-w-md sm:max-w-lg relative z-10 shadow-2xl border-0 bg-white/15 backdrop-blur-xl border border-white/20 mx-4 sm:mx-0">
+      <Card className="w-full max-w-md sm:max-w-lg relative z-10 shadow-lg border border-gray-200 bg-white mx-4 sm:mx-0">
         <CardHeader className="text-center pb-8 pt-8 px-6 sm:px-8">
-          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-fem-navy mb-2">
-            {isVerified ? 'Verified! ✅' : 'Enter Verification Code 🔐'}
+          <div className="mb-6">
+            {isVerified ? (
+              <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <CheckCircle className="w-8 h-8 text-green-600" />
+              </div>
+            ) : (
+              <div className="w-16 h-16 bg-fem-terracotta/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                <div className="w-8 h-8 border-4 border-fem-terracotta border-t-transparent rounded-full animate-spin"></div>
+              </div>
+            )}
+          </div>
+          <h1 className="text-2xl sm:text-3xl font-bold text-fem-navy mb-3">
+            {isVerified ? 'Verified!' : 'Enter Verification Code'}
           </h1>
-          <p className="text-fem-darkgray text-sm sm:text-base">
+          <p className="text-gray-600 text-sm sm:text-base">
             {isVerified 
               ? 'Redirecting you to the next step...'
               : `We've sent a 6-digit code to your ${otpData.method === 'email' ? 'email' : 'phone'}`
             }
           </p>
           {!isVerified && otpData && (
-            <p className="text-fem-terracotta font-medium text-sm sm:text-base mt-2">
+            <p className="text-fem-terracotta font-semibold text-sm sm:text-base mt-3">
               {maskContact(otpData.contact, otpData.method)}
             </p>
           )}
@@ -216,22 +221,24 @@ const OTPVerificationPage: React.FC = () => {
                   onComplete={handleOTPComplete}
                   onValueChange={setOtp}
                   disabled={isVerifying}
+                  contact={otpData.contact}
+                  method={otpData.method}
                 />
               </div>
 
               {isVerifying && (
                 <div className="flex items-center justify-center mb-6">
-                  <Loader2 className="w-6 h-6 animate-spin text-blue-600 mr-2" />
-                  <span className="text-gray-600">Verifying OTP...</span>
+                  <Loader2 className="w-5 h-5 animate-spin text-fem-terracotta mr-2" />
+                  <span className="text-gray-600 text-sm">Verifying code...</span>
                 </div>
               )}
 
-              <div className="space-y-4">
+              <div className="space-y-3">
                 <Button
                   onClick={() => handleOTPComplete(otp)}
                   disabled={otp.length !== 6 || isVerifying}
                   size="lg"
-                  className="w-full"
+                  className="w-full bg-gradient-to-r from-fem-terracotta to-fem-gold hover:from-fem-terracotta/90 hover:to-fem-gold/90 text-white shadow-md hover:shadow-lg transition-all duration-300"
                 >
                   {isVerifying ? (
                     <>
@@ -240,69 +247,69 @@ const OTPVerificationPage: React.FC = () => {
                     </>
                   ) : (
                     <>
-                      Verify OTP
+                      Verify Code
                       <ArrowRight className="w-5 h-5 ml-2" />
                     </>
                   )}
                 </Button>
 
-                <Button
-                  onClick={handleResendOTP}
-                  disabled={resendTimer > 0 || isResending}
-                  variant="outline"
-                  size="lg"
-                  className="w-full"
-                >
-                  {isResending ? (
-                    <>
-                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                      Resending...
-                    </>
-                  ) : resendTimer > 0 ? (
-                    `Resend in ${resendTimer}s`
-                  ) : (
-                    <>
-                      <RefreshCw className="w-4 h-4 mr-2" />
-                      Resend OTP
-                    </>
-                  )}
-                </Button>
+                <div className="flex gap-3">
+                  <Button
+                    onClick={handleResendOTP}
+                    disabled={resendTimer > 0 || isResending}
+                    variant="outline"
+                    size="lg"
+                    className="flex-1 border-gray-300 hover:bg-gray-50"
+                  >
+                    {isResending ? (
+                      <>
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        Resending...
+                      </>
+                    ) : resendTimer > 0 ? (
+                      `Resend (${resendTimer}s)`
+                    ) : (
+                      <>
+                        <RefreshCw className="w-4 h-4 mr-2" />
+                        Resend
+                      </>
+                    )}
+                  </Button>
 
-                <Button
-                  onClick={handleGoBack}
-                  variant="ghost"
-                  className="w-full h-12 text-gray-600 hover:text-gray-800 hover:bg-gray-50 rounded-xl transition-all duration-200"
-                >
-                  <ArrowLeft className="w-4 h-4 mr-2" />
-                  Change {otpData.method === 'email' ? 'Email' : 'Phone Number'}
-                </Button>
+                  <Button
+                    onClick={handleGoBack}
+                    variant="outline"
+                    size="lg"
+                    className="flex-1 border-gray-300 hover:bg-gray-50"
+                  >
+                    <ArrowLeft className="w-4 h-4 mr-2" />
+                    Back
+                  </Button>
+                </div>
+              </div>
+
+              <div className="mt-6 text-center">
+                <p className="text-xs text-gray-500">
+                  Didn't receive the code? Check your {otpData.method === 'email' ? 'spam folder' : 'messages'} or{' '}
+                  <button
+                    onClick={handleResendOTP}
+                    disabled={resendTimer > 0}
+                    className="text-fem-terracotta hover:underline font-medium disabled:opacity-50"
+                  >
+                    resend code
+                  </button>
+                </p>
               </div>
             </>
           )}
 
           {isVerified && (
-            <div className="text-center">
-              <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <CheckCircle className="w-8 h-8 text-green-600" />
-              </div>
+            <div className="text-center py-8">
               <p className="text-gray-600">
                 {otpData ? 'Redirecting you to the next step...' : 'Welcome back!'}
               </p>
             </div>
           )}
-
-          <div className="mt-6 text-center">
-            <p className="text-xs text-gray-500">
-              Didn't receive the code? Check your spam folder or{' '}
-              <button
-                onClick={handleResendOTP}
-                disabled={resendTimer > 0}
-                className="text-blue-600 hover:underline disabled:opacity-50"
-              >
-                resend
-              </button>
-            </p>
-          </div>
         </CardContent>
       </Card>
     </div>

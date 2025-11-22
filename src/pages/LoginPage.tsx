@@ -98,37 +98,32 @@ const LoginPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-white relative">
-      {/* Orange background effects */}
-      <div className="absolute inset-0">
-        <div className="absolute top-1/4 left-0 w-96 h-96 bg-gradient-radial from-fem-terracotta/20 to-transparent rounded-full blur-3xl" />
-        <div className="absolute bottom-0 right-1/4 w-80 h-80 bg-gradient-radial from-fem-terracotta/20 to-transparent rounded-full blur-3xl" />
-      </div>
       <Navbar />
       <div className="flex items-center justify-center p-4 sm:p-6 lg:p-8 pt-20 relative z-10 min-h-screen">
 
-      <Card className="w-full max-w-md sm:max-w-lg relative z-10 shadow-2xl border-0 bg-white/15 backdrop-blur-xl border border-white/20 mx-4 sm:mx-0">
+      <Card className="w-full max-w-md sm:max-w-lg relative z-10 shadow-lg border border-gray-200 bg-white mx-4 sm:mx-0">
         <CardHeader className="text-center pb-6 pt-8 px-6 sm:px-8">
           <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-fem-navy mb-3">
-            Welcome to Faith Connect😎
+            Welcome to Faith Connect
           </h1>
-          <p className="text-fem-darkgray text-sm sm:text-base leading-relaxed">
+          <p className="text-gray-600 text-sm sm:text-base leading-relaxed">
             Sign in instantly using your phone number or email
           </p>
         </CardHeader>
 
         <CardContent className="px-6 sm:px-8 pb-8 space-y-6">
           <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as 'email' | 'phone')} className="w-full">
-            <TabsList className="grid w-full grid-cols-2 mb-6 bg-white/10 backdrop-blur-sm p-1 rounded-xl border border-white/20">
+            <TabsList className="grid w-full grid-cols-2 mb-6 bg-gray-100 p-1 rounded-xl">
               <TabsTrigger 
                 value="phone"
-                className="flex items-center gap-2 data-[state=active]:bg-white/20 data-[state=active]:shadow-lg data-[state=active]:text-fem-terracotta rounded-lg transition-all duration-500 backdrop-blur-sm"
+                className="flex items-center gap-2 data-[state=active]:bg-white data-[state=active]:shadow-md data-[state=active]:text-fem-terracotta rounded-lg transition-all duration-300"
               >
                 <Phone className="w-4 h-4" />
                 Phone
               </TabsTrigger>
               <TabsTrigger 
                 value="email" 
-                className="flex items-center gap-2 data-[state=active]:bg-white/20 data-[state=active]:shadow-lg data-[state=active]:text-fem-terracotta rounded-lg transition-all duration-500 backdrop-blur-sm"
+                className="flex items-center gap-2 data-[state=active]:bg-white data-[state=active]:shadow-md data-[state=active]:text-fem-terracotta rounded-lg transition-all duration-300"
               >
                 <Mail className="w-4 h-4" />
                 Email
@@ -167,7 +162,7 @@ const LoginPage: React.FC = () => {
                       setPhone(formatted);
                     }}
                     onKeyPress={handleKeyPress}
-                    className="pl-10 h-12 sm:h-14 border-white/20 focus:border-fem-terracotta focus:ring-fem-terracotta rounded-xl bg-white/10 backdrop-blur-sm text-sm sm:text-base"
+                    className="pl-10 h-12 sm:h-14 border-gray-300 focus:border-fem-terracotta focus:ring-fem-terracotta rounded-xl bg-white text-sm sm:text-base"
                     disabled={isLoading}
                     inputMode="tel"
                     autoComplete="tel"
@@ -182,7 +177,7 @@ const LoginPage: React.FC = () => {
                   Email Address
                 </label>
                 <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-fem-darkgray w-4 h-4 sm:w-5 sm:h-5" />
+                  <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4 sm:w-5 sm:h-5" />
                   <Input
                     id="email"
                     type="email"
@@ -190,7 +185,7 @@ const LoginPage: React.FC = () => {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     onKeyPress={handleKeyPress}
-                    className="pl-10 h-12 sm:h-14 border-white/20 focus:border-fem-terracotta focus:ring-fem-terracotta rounded-xl bg-white/10 backdrop-blur-sm text-sm sm:text-base"
+                    className="pl-10 h-12 sm:h-14 border-gray-300 focus:border-fem-terracotta focus:ring-fem-terracotta rounded-xl bg-white text-sm sm:text-base"
                     disabled={isLoading}
                   />
                 </div>
@@ -209,7 +204,7 @@ const LoginPage: React.FC = () => {
                   : phone === '+254' || phone.trim().length <= 4)
               }
               size="lg"
-              className="w-full bg-gradient-to-r from-fem-terracotta to-fem-gold hover:from-fem-terracotta/90 hover:to-fem-gold/90 text-white backdrop-blur-sm shadow-lg hover:shadow-xl transition-all duration-500 border border-white/20"
+              className="w-full bg-gradient-to-r from-fem-terracotta to-fem-gold hover:from-fem-terracotta/90 hover:to-fem-gold/90 text-white shadow-md hover:shadow-lg transition-all duration-300"
             >
               {isLoading ? (
                 <>
@@ -226,7 +221,7 @@ const LoginPage: React.FC = () => {
           </div>
 
           <div className="mt-6 text-center">
-                <p className="text-xs text-fem-darkgray">
+                <p className="text-xs text-gray-600">
                   By continuing, you agree to our{' '}
                   <a href="/terms-and-conditions" className="text-fem-terracotta hover:underline">
                     Terms of Service

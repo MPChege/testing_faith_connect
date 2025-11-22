@@ -19,6 +19,7 @@ import {
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { toast } from "@/hooks/use-toast";
+import { apiService } from "@/services/api";
 
 interface FavoriteItem {
   id: string;
@@ -53,28 +54,91 @@ const FavoritesPage = () => {
       return;
     }
 
-    // Load favorites from localStorage
+    // Load favorites from API and sync with localStorage
     loadFavorites();
-  }, [isAuthenticated, navigate]);
+  }, [isAuthenticated, navigate, user?.id]);
 
-  const loadFavorites = () => {
+  const loadFavorites = async () => {
+    setIsLoading(true);
     try {
-      const storedFavorites = localStorage.getItem(`favorites_${user?.id}`);
-      if (storedFavorites) {
-        const parsed = JSON.parse(storedFavorites);
-        console.log('FavoritesPage - Loaded favorites:', parsed);
-        console.log('FavoritesPage - Products:', parsed.products);
-        console.log('FavoritesPage - Services:', parsed.services);
+      // First, try to load from API
+      try {
+        const apiFavorites = await apiService.getUserFavoritesVSet();
+        console.log('FavoritesPage - API favorites:', apiFavorites);
         
-        // Clean up any items that might be in the wrong arrays
-        const cleanedFavorites = cleanupFavoritesStructure(parsed);
+        // Convert API favorites to our format
+        // API returns businesses that are favorited
+        const businessFavorites = apiFavorites.results || [];
+        
+        // Load from localStorage for products/services that were favorited
+        const storedFavorites = localStorage.getItem(`favorites_${user?.id}`);
+        let localFavorites = { products: [], services: [], businesses: [] };
+        
+        if (storedFavorites) {
+          try {
+            localFavorites = JSON.parse(storedFavorites);
+          } catch (e) {
+            console.error("Error parsing localStorage favorites:", e);
+          }
+        }
+        
+        // Extract business IDs from API favorites
+        const apiBusinessIds = new Set(
+          businessFavorites.map((fav: any) => fav.business || fav.business_id || fav.id).filter(Boolean)
+        );
+        
+        // Filter local favorites to only include businesses that are in API favorites
+        // This ensures sync between API and localStorage
+        const filteredLocalProducts = (localFavorites.products || []).filter((item: any) => 
+          apiBusinessIds.has(item.business_id || item.businessId)
+        );
+        const filteredLocalServices = (localFavorites.services || []).filter((item: any) => 
+          apiBusinessIds.has(item.business_id || item.businessId)
+        );
+        
+        // Merge API businesses with filtered local products/services
+        const mergedFavorites = {
+          products: filteredLocalProducts,
+          services: filteredLocalServices,
+          businesses: businessFavorites.map((fav: any) => {
+            const businessId = fav.business || fav.business_id || fav.id;
+            return {
+              id: businessId,
+              type: 'business',
+              name: fav.business_name || 'Business',
+              description: '',
+              business_name: fav.business_name || 'Business',
+              business_id: businessId,
+              created_at: fav.created_at || new Date().toISOString(),
+            };
+          })
+        };
+        
+        // Clean up structure
+        const cleanedFavorites = cleanupFavoritesStructure(mergedFavorites);
         setFavorites(cleanedFavorites);
         
-        // Save the cleaned structure back to localStorage
+        // Save merged favorites back to localStorage
         localStorage.setItem(`favorites_${user?.id}`, JSON.stringify(cleanedFavorites));
+      } catch (apiError) {
+        console.error("Error loading favorites from API, using localStorage:", apiError);
+        
+        // Fallback to localStorage only
+        const storedFavorites = localStorage.getItem(`favorites_${user?.id}`);
+        if (storedFavorites) {
+          const parsed = JSON.parse(storedFavorites);
+          const cleanedFavorites = cleanupFavoritesStructure(parsed);
+          setFavorites(cleanedFavorites);
+          localStorage.setItem(`favorites_${user?.id}`, JSON.stringify(cleanedFavorites));
+        }
       }
     } catch (error) {
       console.error("Error loading favorites:", error);
+      toast({
+        title: "Error",
+        description: "Failed to load favorites. Please try again.",
+        variant: "destructive",
+      });
     } finally {
       setIsLoading(false);
     }
@@ -135,8 +199,26 @@ const FavoritesPage = () => {
     return cleaned;
   };
 
-  const removeFavorite = (itemId: string, type: 'product' | 'service' | 'business') => {
+  const removeFavorite = async (itemId: string, type: 'product' | 'service' | 'business') => {
     try {
+      // Find the item to get businessId
+      const item = favorites[type === 'product' ? 'products' : type === 'service' ? 'services' : 'businesses']
+        .find(item => item.id === itemId);
+      
+      const businessId = item?.business_id || itemId;
+      
+      // Call API to unfavorite and unlike
+      if (type === 'business' || businessId) {
+        try {
+          await apiService.toggleBusinessFavorite(businessId);
+          await apiService.toggleBusinessLikeVSet(businessId);
+        } catch (apiError) {
+          console.error("API unfavorite failed:", apiError);
+          // Continue with local update even if API fails
+        }
+      }
+      
+      // Update local state
       const newFavorites = {
         ...favorites,
         [type === 'product' ? 'products' : type === 'service' ? 'services' : 'businesses']: 
@@ -150,6 +232,11 @@ const FavoritesPage = () => {
         title: "Removed from favorites",
         description: "Item has been removed from your favorites list.",
       });
+      
+      // Reload favorites to sync with API (with a small delay to ensure API has processed)
+      setTimeout(() => {
+        loadFavorites();
+      }, 500);
     } catch (error) {
       console.error("Error removing favorite:", error);
       toast({
@@ -193,7 +280,13 @@ const FavoritesPage = () => {
   };
 
   const viewItem = (item: FavoriteItem) => {
-    navigate(`/business/${item.business_id}`);
+    if (item.type === 'product') {
+      navigate(`/business/${item.business_id}?product=${item.id}`);
+    } else if (item.type === 'service') {
+      navigate(`/business/${item.business_id}?service=${item.id}`);
+    } else {
+      navigate(`/business/${item.business_id}`);
+    }
   };
 
   if (!isAuthenticated) {

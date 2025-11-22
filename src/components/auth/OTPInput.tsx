@@ -7,6 +7,8 @@ interface OTPInputProps {
   onValueChange?: (otp: string) => void;
   className?: string;
   disabled?: boolean;
+  contact?: string;
+  method?: 'email' | 'phone';
 }
 
 export const OTPInput: React.FC<OTPInputProps> = ({
@@ -15,6 +17,8 @@ export const OTPInput: React.FC<OTPInputProps> = ({
   onValueChange,
   className,
   disabled = false,
+  contact,
+  method = 'phone',
 }) => {
   const [otp, setOtp] = useState<string[]>(new Array(length).fill(''));
   const [activeIndex, setActiveIndex] = useState<number>(0);
@@ -123,34 +127,48 @@ export const OTPInput: React.FC<OTPInputProps> = ({
     }
   }, [disabled]);
 
-  // Auto-detect and fill OTP from SMS/email
+  // Auto-detect and fill OTP from SMS/email using WebOTP API
   useEffect(() => {
-    const handleMessage = (event: MessageEvent) => {
-      // Check if the message contains an OTP pattern
-      const otpPattern = /\b(\d{6})\b/g;
-      const message = event.data?.toString() || '';
-      const match = message.match(otpPattern);
-      
-      if (match && match[0]) {
-        const detectedOTP = match[0];
-        const newOtp = detectedOTP.split('');
-        setOtp(newOtp);
-        onValueChange?.(detectedOTP);
-        
-        // Auto-complete if it's a 6-digit OTP
-        if (detectedOTP.length === 6) {
-          onComplete(detectedOTP);
+    if (disabled || !('OTPCredential' in window)) {
+      return;
+    }
+
+    // Use WebOTP API for automatic OTP detection (Chrome/Edge on Android)
+    const abortController = new AbortController();
+    
+    const handleWebOTP = async () => {
+      try {
+        const otp = await (navigator.credentials as any).get({
+          otp: { transport: ['sms'] },
+          signal: abortController.signal,
+        }) as any;
+
+        if (otp && otp.code) {
+          const detectedOTP = otp.code.replace(/\D/g, '').slice(0, length);
+          if (detectedOTP.length === length) {
+            const newOtp = detectedOTP.split('');
+            setOtp(newOtp);
+            onValueChange?.(detectedOTP);
+            onComplete(detectedOTP);
+          }
+        }
+      } catch (error: any) {
+        // User cancelled or API not supported - ignore silently
+        if (error.name !== 'AbortError' && error.name !== 'NotSupportedError') {
+          console.log('WebOTP API error:', error);
         }
       }
     };
 
-    // Listen for messages (SMS autofill, etc.)
-    window.addEventListener('message', handleMessage);
-    
+    // Only use WebOTP for phone method
+    if (method === 'phone') {
+      handleWebOTP();
+    }
+
     // Also check for OTP in URL parameters (for email links)
     const urlParams = new URLSearchParams(window.location.search);
     const urlOTP = urlParams.get('otp');
-    if (urlOTP && urlOTP.length === 6 && /^\d+$/.test(urlOTP)) {
+    if (urlOTP && urlOTP.length === length && /^\d+$/.test(urlOTP)) {
       const newOtp = urlOTP.split('');
       setOtp(newOtp);
       onValueChange?.(urlOTP);
@@ -158,9 +176,9 @@ export const OTPInput: React.FC<OTPInputProps> = ({
     }
 
     return () => {
-      window.removeEventListener('message', handleMessage);
+      abortController.abort();
     };
-  }, [onValueChange, onComplete]);
+  }, [onValueChange, onComplete, length, disabled, method]);
 
   return (
     <div className={cn('flex gap-3 justify-center', className)}>
@@ -179,17 +197,19 @@ export const OTPInput: React.FC<OTPInputProps> = ({
           onFocus={() => handleFocus(index)}
           onBlur={handleBlur}
           disabled={disabled}
+          autoComplete={index === 0 ? 'one-time-code' : 'off'}
+          autoFocus={index === 0}
           className={cn(
             'w-12 h-12 md:w-14 md:h-14 text-center text-lg md:text-xl font-semibold',
-            'border-2 rounded-xl transition-all duration-200',
-            'focus:outline-none focus:ring-2 focus:ring-fem-terracotta focus:ring-offset-2',
+            'border-2 rounded-lg transition-all duration-200',
+            'focus:outline-none focus:ring-2 focus:ring-fem-terracotta focus:ring-offset-1',
             'disabled:opacity-50 disabled:cursor-not-allowed',
             activeIndex === index
-              ? 'border-fem-terracotta bg-fem-lightgold/30 shadow-lg scale-105'
+              ? 'border-fem-terracotta bg-fem-terracotta/5 shadow-md scale-105'
               : digit
-              ? 'border-fem-gold bg-fem-lightgold/20'
-              : 'border-gray-300 bg-white hover:border-fem-gold/50',
-            'focus:border-fem-terracotta focus:bg-fem-lightgold/20'
+              ? 'border-fem-gold bg-fem-gold/5'
+              : 'border-gray-300 bg-white hover:border-gray-400',
+            'focus:border-fem-terracotta focus:bg-fem-terracotta/5'
           )}
         />
       ))}

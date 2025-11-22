@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Heart } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "@/hooks/use-toast";
+import { apiService } from "@/services/api";
 
 interface LikeButtonProps {
   itemId: string;
@@ -45,10 +46,53 @@ const LikeButton = ({
     if (isAuthenticated && user) {
       checkIfLiked();
     }
-  }, [isAuthenticated, user, itemId]);
+  }, [isAuthenticated, user, itemId, businessId]);
 
-  const checkIfLiked = () => {
+  const checkIfLiked = async () => {
     try {
+      // Always check API first for the most up-to-date status
+      try {
+        const apiFavorites = await apiService.getUserFavoritesVSet();
+        const businessIdToCheck = businessId;
+        
+        // Check if this business is in the API favorites
+        const isFavorited = apiFavorites.results?.some((fav: any) => {
+          const favBusinessId = fav.business || fav.business_id || fav.id;
+          return favBusinessId === businessIdToCheck || String(favBusinessId) === String(businessIdToCheck);
+        });
+        
+        setIsLiked(!!isFavorited);
+        
+        // Also update localStorage to keep it in sync
+        if (isFavorited) {
+          const storedFavorites = localStorage.getItem(`favorites_${user?.id}`) || '{"products": [], "services": [], "businesses": []}';
+          const favorites = JSON.parse(storedFavorites);
+          
+          // Ensure business is in businesses array
+          const businessExists = favorites.businesses?.some((b: any) => 
+            b.id === businessIdToCheck || b.business_id === businessIdToCheck
+          );
+          
+          if (!businessExists) {
+            if (!favorites.businesses) favorites.businesses = [];
+            favorites.businesses.push({
+              id: businessIdToCheck,
+              type: 'business',
+              name: businessName,
+              business_name: businessName,
+              business_id: businessIdToCheck,
+              created_at: new Date().toISOString(),
+            });
+            localStorage.setItem(`favorites_${user?.id}`, JSON.stringify(favorites));
+          }
+        }
+        
+        return;
+      } catch (apiError) {
+        console.log("API check failed, falling back to localStorage:", apiError);
+      }
+
+      // Fallback to localStorage
       const storedFavorites = localStorage.getItem(`favorites_${user?.id}`);
       if (storedFavorites) {
         const favorites = JSON.parse(storedFavorites);
@@ -58,12 +102,19 @@ const LikeButton = ({
           ...(favorites.services || []), 
           ...(favorites.businesses || [])
         ];
-        const likedItem = allItems.find((item: any) => item.id === itemId);
-        setIsLiked(!!likedItem);
-        
-        // If item is found in wrong array, log it for debugging
-        if (likedItem && likedItem.type !== itemType) {
-          console.warn(`LikeButton - Item ${itemId} found in wrong array: expected ${itemType}, found in ${likedItem.type}`);
+        // For products/services, check if the business is favorited
+        if (itemType === 'product' || itemType === 'service') {
+          const likedItem = allItems.find((item: any) => 
+            (item.business_id === businessId || item.businessId === businessId) && 
+            (item.type === 'business' || item.id === businessId)
+          );
+          setIsLiked(!!likedItem);
+        } else {
+          const likedItem = allItems.find((item: any) => 
+            item.id === itemId || item.id === businessId || 
+            item.business_id === businessId || item.businessId === businessId
+          );
+          setIsLiked(!!likedItem);
         }
       }
     } catch (error) {
@@ -83,93 +134,110 @@ const LikeButton = ({
 
     setIsLoading(true);
     try {
-      const storedFavorites = localStorage.getItem(`favorites_${user?.id}`) || '{"products": [], "services": [], "businesses": []}';
-      const favorites = JSON.parse(storedFavorites);
-      console.log('LikeButton - Initial favorites structure:', favorites);
-      console.log('LikeButton - Current itemType:', itemType);
-      
-      const itemData = {
-        id: itemId,
-        type: itemType,
-        name: itemName,
-        description,
-        price,
-        price_currency: priceCurrency,
-        business_name: businessName,
-        business_id: businessId,
-        rating,
-        review_count: reviewCount,
-        in_stock: inStock,
-        is_active: isActive,
-        created_at: new Date().toISOString(),
-      };
+      // Always use businessId for API calls (products/services favorite the business)
+      const targetBusinessId = businessId;
 
       if (isLiked) {
-        // Remove from favorites - check all arrays to handle data inconsistencies
-        let removed = false;
+        // Unfavorite: Call both endpoints to unfavorite and unlike
+        try {
+          await apiService.toggleBusinessFavorite(targetBusinessId);
+          await apiService.toggleBusinessLikeVSet(targetBusinessId);
+        } catch (apiError) {
+          console.error("API unfavorite failed:", apiError);
+          // Continue with localStorage update even if API fails
+        }
+
+        // Update localStorage
+        const storedFavorites = localStorage.getItem(`favorites_${user?.id}`) || '{"products": [], "services": [], "businesses": []}';
+        const favorites = JSON.parse(storedFavorites);
         
-        // Remove from products array if found there
+        // Remove from all arrays where business matches
         if (favorites.products) {
-          const productIndex = favorites.products.findIndex((item: any) => item.id === itemId);
-          if (productIndex !== -1) {
-            favorites.products.splice(productIndex, 1);
-            removed = true;
-          }
+          favorites.products = favorites.products.filter((item: any) => 
+            item.business_id !== targetBusinessId && item.businessId !== targetBusinessId
+          );
+        }
+        if (favorites.services) {
+          favorites.services = favorites.services.filter((item: any) => 
+            item.business_id !== targetBusinessId && item.businessId !== targetBusinessId
+          );
+        }
+        if (favorites.businesses) {
+          favorites.businesses = favorites.businesses.filter((item: any) => 
+            item.id !== targetBusinessId && item.business_id !== targetBusinessId
+          );
         }
         
-        // Remove from services array if found there
-        if (favorites.services && !removed) {
-          const serviceIndex = favorites.services.findIndex((item: any) => item.id === itemId);
-          if (serviceIndex !== -1) {
-            favorites.services.splice(serviceIndex, 1);
-            removed = true;
-          }
-        }
-        
-        // Remove from businesses array if found there
-        if (favorites.businesses && !removed) {
-          const businessIndex = favorites.businesses.findIndex((item: any) => item.id === itemId);
-          if (businessIndex !== -1) {
-            favorites.businesses.splice(businessIndex, 1);
-            removed = true;
-          }
-        }
+        localStorage.setItem(`favorites_${user?.id}`, JSON.stringify(favorites));
         
         toast({
           title: "Removed from favorites",
           description: `${itemName} has been removed from your favorites.`,
         });
+        setIsLiked(false);
       } else {
-        // Add to favorites - ensure it goes to the correct array
-        // First, remove from wrong arrays if it exists there
+        // Favorite: Call both endpoints to favorite and like
+        try {
+          await apiService.toggleBusinessFavorite(targetBusinessId);
+          await apiService.toggleBusinessLikeVSet(targetBusinessId);
+        } catch (apiError) {
+          console.error("API favorite failed:", apiError);
+          toast({
+            title: "Warning",
+            description: "Failed to sync with server. Saved locally.",
+            variant: "default",
+          });
+        }
+
+        // Update localStorage
+        const storedFavorites = localStorage.getItem(`favorites_${user?.id}`) || '{"products": [], "services": [], "businesses": []}';
+        const favorites = JSON.parse(storedFavorites);
+        
+        const itemData = {
+          id: itemType === 'business' ? itemId : `${itemType}-${itemId}`,
+          type: itemType,
+          name: itemName,
+          description,
+          price,
+          price_currency: priceCurrency,
+          business_name: businessName,
+          business_id: targetBusinessId,
+          rating,
+          review_count: reviewCount,
+          in_stock: inStock,
+          is_active: isActive,
+          created_at: new Date().toISOString(),
+        };
+
+        // Remove existing entries for this business/item
         if (favorites.products) {
-          favorites.products = favorites.products.filter((item: any) => item.id !== itemId);
+          favorites.products = favorites.products.filter((item: any) => 
+            item.business_id !== targetBusinessId && item.businessId !== targetBusinessId && item.id !== itemId
+          );
         }
         if (favorites.services) {
-          favorites.services = favorites.services.filter((item: any) => item.id !== itemId);
+          favorites.services = favorites.services.filter((item: any) => 
+            item.business_id !== targetBusinessId && item.businessId !== targetBusinessId && item.id !== itemId
+          );
         }
         if (favorites.businesses) {
-          favorites.businesses = favorites.businesses.filter((item: any) => item.id !== itemId);
+          favorites.businesses = favorites.businesses.filter((item: any) => 
+            item.id !== targetBusinessId && item.business_id !== targetBusinessId
+          );
         }
         
         // Add to correct array
         const targetArray = itemType === 'product' ? 'products' : itemType === 'service' ? 'services' : 'businesses';
-        console.log('LikeButton - Adding item to favorites:', {
-          itemType,
-          itemData,
-          targetArray
-        });
         favorites[targetArray].push(itemData);
+        
+        localStorage.setItem(`favorites_${user?.id}`, JSON.stringify(favorites));
         
         toast({
           title: "Added to favorites",
           description: `${itemName} has been added to your favorites!`,
         });
+        setIsLiked(true);
       }
-
-      console.log('LikeButton - Final favorites structure:', favorites);
-      localStorage.setItem(`favorites_${user?.id}`, JSON.stringify(favorites));
-      setIsLiked(!isLiked);
     } catch (error) {
       console.error("Error updating favorites:", error);
       toast({
